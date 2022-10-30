@@ -4,12 +4,15 @@ import 'package:boride_driver/splashScreen/splash_screen.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 
 class LoginScreen extends StatefulWidget
 {
+  const LoginScreen({Key? key}) : super(key: key);
+
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -188,16 +191,8 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
 
-              TextButton(
-                child: const Text(
-                  "Do not have an Account? SignUp Here",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                onPressed: ()
-                {
-                  Navigator.push(context, MaterialPageRoute(builder: (c)=> SignUpScreen()));
-                },
-              ),
+              CupertinoButton(child: Text("Already have an account"), onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (c)=> SignUpScreen()));})
+
 
             ],
           ),
