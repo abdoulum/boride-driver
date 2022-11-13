@@ -10,7 +10,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class PushNotificationSystem {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  Future initializeCloudMessaging(BuildContext context) async {
+  Future initialize(BuildContext context) async {
+
     //1. Terminated
     //When the app is completely closed and opened directly from the push notification
     FirebaseMessaging.instance
@@ -42,29 +43,31 @@ class PushNotificationSystem {
 
   readUserRideRequestInformation(
       String userRideRequestId, BuildContext context) {
+
     FirebaseDatabase.instance
         .ref()
-        .child("RideRequest")
+        .child("Ride Request")
         .child(userRideRequestId)
         .once()
         .then((snapData) {
       if (snapData.snapshot.value != null) {
         double originLat = double.parse(
-            (snapData.snapshot.value! as Map)["origin"]["latitude"]);
+            (snapData.snapshot.value! as Map)["pickup"]["latitude"]);
         double originLng = double.parse(
-            (snapData.snapshot.value! as Map)["origin"]["longitude"]);
+            (snapData.snapshot.value! as Map)["pickup"]["longitude"]);
         String originAddress =
-            (snapData.snapshot.value! as Map)["originAddress"];
+            (snapData.snapshot.value! as Map)["pickup_address"];
 
         double destinationLat = double.parse(
-            (snapData.snapshot.value! as Map)["destination"]["latitude"]);
+            (snapData.snapshot.value! as Map)["dropoff"]["latitude"]);
         double destinationLng = double.parse(
-            (snapData.snapshot.value! as Map)["destination"]["longitude"]);
+            (snapData.snapshot.value! as Map)["dropoff"]["longitude"]);
         String destinationAddress =
-            (snapData.snapshot.value! as Map)["destinationAddress"];
+            (snapData.snapshot.value! as Map)["dropoff_address"];
 
-        String userName = (snapData.snapshot.value! as Map)["userName"];
-        String userPhone = (snapData.snapshot.value! as Map)["userPhone"];
+        String userName = (snapData.snapshot.value! as Map)["rider_name"];
+        String userPhone = (snapData.snapshot.value! as Map)["rider_phone"];
+        String paymentMethod = (snapData.snapshot.value! as Map)["payment_method"];
 
         String? rideRequestId = snapData.snapshot.key;
 
@@ -80,6 +83,7 @@ class PushNotificationSystem {
 
         userRideRequestDetails.userName = userName;
         userRideRequestDetails.userPhone = userPhone;
+        userRideRequestDetails.paymentMethod = paymentMethod;
 
         userRideRequestDetails.rideRequestId = rideRequestId;
 

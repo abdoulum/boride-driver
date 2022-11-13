@@ -1,5 +1,6 @@
-import 'package:boride_driver/authentication/signup_screen.dart';
+import 'package:boride_driver/authentication/driver_registation.dart';
 import 'package:boride_driver/global/global.dart';
+import 'package:boride_driver/mainScreens/main_screen.dart';
 import 'package:boride_driver/splashScreen/splash_screen.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,84 +9,66 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-
-class LoginScreen extends StatefulWidget
-{
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
-
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-
-
-
-class _LoginScreenState extends State<LoginScreen>
-{
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
 
-
-  validateForm()
-  {
-    if(!emailTextEditingController.text.contains("@"))
-    {
+  validateForm() {
+    if (!emailTextEditingController.text.contains("@")) {
       Fluttertoast.showToast(msg: "Email address is not Valid.");
-    }
-    else if(passwordTextEditingController.text.isEmpty)
-    {
+    } else if (passwordTextEditingController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Password is required.");
-    }
-    else
-    {
+    } else {
       loginDriverNow();
     }
   }
 
-  loginDriverNow() async
-  {
+  loginDriverNow() async {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext c)
-        {
-          return ProgressDialog(message: "Processing, Please wait...",);
-        }
-    );
+        builder: (BuildContext c) {
+          return ProgressDialog(
+            message: "Processing, Please wait...",
+          );
+        });
 
-    final User? firebaseUser = (
-        await fAuth.signInWithEmailAndPassword(
-          email: emailTextEditingController.text.trim(),
-          password: passwordTextEditingController.text.trim(),
-        ).catchError((msg){
-          Navigator.pop(context);
-          Fluttertoast.showToast(msg: "Error: " + msg.toString());
-        })
-    ).user;
+    final User? firebaseUser = (await fAuth
+            .signInWithEmailAndPassword(
+      email: emailTextEditingController.text.trim(),
+      password: passwordTextEditingController.text.trim(),
+    )
+            .catchError((msg) {
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+    }))
+        .user;
 
-    if(firebaseUser != null)
-    {
-      DatabaseReference driversRef = FirebaseDatabase.instance.ref().child("drivers");
-      driversRef.child(firebaseUser.uid).once().then((driverKey)
-      {
+    if (firebaseUser != null) {
+      DatabaseReference driversRef =
+          FirebaseDatabase.instance.ref().child("drivers");
+      driversRef.child(firebaseUser.uid).once().then((driverKey) {
         final snap = driverKey.snapshot;
-        if(snap.value != null)
-        {
+        if (snap.value != null) {
           currentFirebaseUser = firebaseUser;
           Fluttertoast.showToast(msg: "Login Successful.");
-          Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
-        }
-        else
-        {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (c) => const MainScreen()));
+        } else {
           Fluttertoast.showToast(msg: "No record exist with this email.");
           fAuth.signOut();
-          Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (c) => const MySplashScreen()));
         }
       });
-    }
-    else
-    {
+    } else {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Error Occurred during Login.");
     }
@@ -94,93 +77,110 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-
-              const SizedBox(height: 30,),
-
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Image.asset("images/logo1.png"),
-              ),
-
-              const SizedBox(height: 10,),
-
-              const Text(
+              SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+              Text(
                 "Login as a Driver",
                 style: TextStyle(
-                  fontSize: 26,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontFamily: "Brand-Regular",
+                  color: Colors.grey.shade700,
                 ),
               ),
-
-              TextField(
-                controller: emailTextEditingController,
-                keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(
-                    color: Colors.grey
-                ),
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  hintText: "Email",
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Email",
+                    style: TextStyle(fontFamily: "Brand-Regular"),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  const SizedBox(
+                    height: 10,
                   ),
-                  hintStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 10,
+                  Container(
+                    //     margin: EdgeInsets.all(12),
+                    height: 45,
+                    width: 350,
+                    decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 243, 245, 247),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: TextFormField(
+                          controller: emailTextEditingController,
+                          textCapitalization: TextCapitalization.words,
+                          keyboardType: TextInputType.name,
+                          decoration: const InputDecoration(
+                            hintText: "Example@gmail.com",
+                            prefixStyle: TextStyle(color: Colors.black),
+                            // prefixIcon: Icon(Icons.person),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  labelStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
+                ],
               ),
-
-              TextField(
-                controller: passwordTextEditingController,
-                keyboardType: TextInputType.text,
-                obscureText: true,
-                style: const TextStyle(
-                    color: Colors.grey
-                ),
-                decoration: const InputDecoration(
-                  labelText: "Password",
-                  hintText: "Password",
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  hintStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
+              const SizedBox(
+                height: 20,
               ),
-
-              const SizedBox(height: 20,),
-
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Password",
+                    style: TextStyle(fontFamily: "Brand-Regular"),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    //     margin: EdgeInsets.all(12),
+                    height: 45,
+                    width: 350,
+                    decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 243, 245, 247),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: TextFormField(
+                          controller: passwordTextEditingController,
+                          textCapitalization: TextCapitalization.words,
+                          keyboardType: TextInputType.text,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            hintText: "********",
+                            prefixStyle: TextStyle(color: Colors.black),
+                            // prefixIcon: Icon(Icons.person),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               ElevatedButton(
-                onPressed: ()
-                {
+                onPressed: () {
                   validateForm();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreenAccent,
+                  backgroundColor: Colors.lightGreenAccent,
                 ),
                 child: const Text(
                   "Login",
@@ -190,10 +190,12 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
               ),
-
-              CupertinoButton(child: Text("Already have an account"), onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (c)=> SignUpScreen()));})
-
-
+              CupertinoButton(
+                  child: const Text("Already have an account"),
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (c) => const NewDriver()));
+                  })
             ],
           ),
         ),

@@ -65,6 +65,38 @@ class AssistantMethods {
     return directionDetailsInfo;
   }
 
+
+  static Future<DirectionDetailsInfo?>
+  obtainOriginToEndTripDirectionDetails(
+      LatLng origionPosition, LatLng destinationPosition) async {
+    String urlOriginToEndTripDirectionDetails =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${origionPosition.latitude},${origionPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
+
+    var responseDirectionApi = await RequestAssistant.receiveRequest(
+        urlOriginToEndTripDirectionDetails);
+
+    if (responseDirectionApi == "Error Occurred, Failed. No Response.") {
+      return null;
+    }
+
+    DirectionDetailsInfo endTripDirectionDetailsInfo = DirectionDetailsInfo();
+    endTripDirectionDetailsInfo.e_points =
+    responseDirectionApi["routes"][0]["overview_polyline"]["points"];
+
+    endTripDirectionDetailsInfo.distance_text =
+    responseDirectionApi["routes"][0]["legs"][0]["distance"]["text"];
+    endTripDirectionDetailsInfo.distance_value =
+    responseDirectionApi["routes"][0]["legs"][0]["distance"]["value"];
+
+    endTripDirectionDetailsInfo.duration_text =
+    responseDirectionApi["routes"][0]["legs"][0]["duration"]["text"];
+    endTripDirectionDetailsInfo.duration_value =
+    responseDirectionApi["routes"][0]["legs"][0]["duration"]["value"];
+
+    return endTripDirectionDetailsInfo;
+  }
+
+
   static pauseLiveLocationUpdates() {
     streamSubscriptionPosition!.pause();
     Geofire.removeLocation(currentFirebaseUser!.uid);
@@ -80,18 +112,15 @@ class AssistantMethods {
       DirectionDetailsInfo directionDetailsInfo) {
     // per km = ₦50,
     // per min = ₦10
-    // base fare = ₦200
+    // base fare = ₦150
 
-    double baseFare = 200;
+    double baseFare = 150;
     double distanceFare = (directionDetailsInfo.distance_value! / 1000) * 50;
     double timeFare = (directionDetailsInfo.duration_value! / 60) * 10;
 
     double totalFare = baseFare + distanceFare + timeFare;
 
-    if (driverVehicleType == "bike") {
-      double resultFareAmount = (totalFare.truncate()) / 2.0;
-      return resultFareAmount;
-    } else if (driverVehicleType == "uber-go") {
+    if (driverVehicleType == "uber-go") {
       return totalFare.truncate().toDouble();
     } else if (driverVehicleType == "uber-x") {
       double resultFareAmount = (totalFare.truncate()) * 1.4;
@@ -106,7 +135,7 @@ class AssistantMethods {
   static void readTripsKeysForOnlineDriver(context) {
     FirebaseDatabase.instance
         .ref()
-        .child("RideRequest")
+        .child("Ride Request")
         .orderByChild("driverId")
         .equalTo(fAuth.currentUser!.uid)
         .once()
@@ -140,7 +169,7 @@ class AssistantMethods {
     for (String eachKey in tripsAllKeys) {
       FirebaseDatabase.instance
           .ref()
-          .child("RideRequest")
+          .child("Ride Request")
           .child(eachKey)
           .once()
           .then((snap) {

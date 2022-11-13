@@ -188,7 +188,7 @@ class _CarInfoScreenState extends State<CarInfoScreen>
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreenAccent,
+                  backgroundColor: Colors.lightGreenAccent,
                 ),
                 child: const Text(
                   "Save Now",

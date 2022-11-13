@@ -23,12 +23,12 @@ class TripsHistoryModel
 
   TripsHistoryModel.fromSnapshot(DataSnapshot dataSnapshot)
   {
-    time = (dataSnapshot.value as Map)["time"];
-    originAddress = (dataSnapshot.value as Map)["originAddress"];
-    destinationAddress = (dataSnapshot.value as Map)["destinationAddress"];
-    status = (dataSnapshot.value as Map)["status"];
-    fareAmount = (dataSnapshot.value as Map)["fareAmount"];
-    userName = (dataSnapshot.value as Map)["userName"];
-    userPhone = (dataSnapshot.value as Map)["userPhone"];
+    time = (dataSnapshot.value as dynamic)["time"];
+    originAddress = (dataSnapshot.value as dynamic)["pickup_address"];
+    destinationAddress = (dataSnapshot.value as dynamic)["dropoff_address"];
+    status = (dataSnapshot.value as dynamic)["status"];
+    fareAmount = (dataSnapshot.value as dynamic)["fareAmount"];
+    userName = (dataSnapshot.value as dynamic)["rider_name"];
+    userPhone = (dataSnapshot.value as dynamic)["rider_phone"];
   }
 }

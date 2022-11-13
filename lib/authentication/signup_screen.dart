@@ -87,7 +87,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
       currentFirebaseUser = firebaseUser;
       Fluttertoast.showToast(msg: "Account has been Created.");
-      Navigator.push(context, MaterialPageRoute(builder: (c)=> CarInfoScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (c)=> const CarInfoScreen()));
     }
     else
     {
@@ -236,7 +236,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                   validateForm();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreenAccent,
+                  backgroundColor: Colors.lightGreenAccent,
                 ),
                 child: const Text(
                   "Create Account",
@@ -247,7 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 ),
               ),
 
-              CupertinoButton(child: Text("Already have an account"), onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));})
+              CupertinoButton(child: const Text("Already have an account"), onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (c)=> const LoginScreen()));})
 
             ],
           ),

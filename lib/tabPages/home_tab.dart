@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:boride_driver/assistants/assistant_methods.dart';
+import 'package:boride_driver/brand_colors.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/push_notifications/push_notification_system.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ionicons/ionicons.dart';
 
-import '../assistants/black_theme_google_map.dart';
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({Key? key}) : super(key: key);
@@ -23,9 +23,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+  static const CameraPosition _kBorideHq = CameraPosition(
+    target: LatLng(9.074329, 7.507098),
+    zoom: 17,
   );
 
   var geoLocator = Geolocator();
@@ -52,7 +52,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
         driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
 
     CameraPosition cameraPosition =
-        CameraPosition(target: latLngPosition, zoom: 14);
+        CameraPosition(target: latLngPosition, zoom: 16);
 
     newGoogleMapController!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
@@ -63,7 +63,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
   readCurrentDriverInformation() async {
     currentFirebaseUser = fAuth.currentUser;
-
     await FirebaseDatabase.instance
         .ref()
         .child("drivers")
@@ -88,7 +87,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     });
 
     PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
-    pushNotificationSystem.initializeCloudMessaging(context);
+    pushNotificationSystem.initialize(context);
     pushNotificationSystem.generateAndGetToken();
 
     AssistantMethods.readDriverEarnings(context);
@@ -110,13 +109,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
         GoogleMap(
           mapType: MapType.normal,
           myLocationEnabled: true,
-          initialCameraPosition: _kGooglePlex,
+          myLocationButtonEnabled: false,
+          zoomGesturesEnabled: true,
+          zoomControlsEnabled: false,
+          initialCameraPosition: _kBorideHq,
           onMapCreated: (GoogleMapController controller) {
             _controllerGoogleMap.complete(controller);
             newGoogleMapController = controller;
-
-            //black theme google map
-            blackThemeGoogleMap(newGoogleMapController);
 
             locateDriverPosition();
           },
@@ -131,11 +130,44 @@ class _HomeTabPageState extends State<HomeTabPage> {
               )
             : Container(),
 
+        //locate ui
+        Positioned(
+          right: 15,
+          bottom: 10,
+          child: GestureDetector(
+            onTap: () {
+              locateDriverPosition();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25.0),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    blurRadius: 1.0,
+                    spreadRadius: 0.5,
+                    offset: Offset(
+                      0,
+                      0,
+                    ),
+                  ),
+                ],
+              ),
+              child: const CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25.0,
+                child: Icon(Ionicons.locate, color: Colors.blue),
+              ),
+            ),
+          ),
+        ),
+
         //button for online offline driver
         Positioned(
           top: statusText != "Now Online"
-              ? MediaQuery.of(context).size.height * 0.46
-              : 25,
+              ? MediaQuery.of(context).size.height * 0.5
+              : 40,
           left: 0,
           right: 0,
           child: Row(
@@ -154,8 +186,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
                       buttonColor = Colors.transparent;
                     });
 
-                    //display Toast
-                    Fluttertoast.showToast(msg: "you are Online Now");
                   } else //online
                   {
                     driverIsOfflineNow();
@@ -165,13 +195,10 @@ class _HomeTabPageState extends State<HomeTabPage> {
                       isDriverActive = false;
                       buttonColor = Colors.grey;
                     });
-
-                    //display Toast
-                    Fluttertoast.showToast(msg: "you are Offline Now");
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: buttonColor,
+                  backgroundColor: statusText != "Now Online"? Colors.red : BrandColors.online,
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),
@@ -187,7 +214,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                         ),
                       )
                     : const Icon(
-                        Icons.phonelink_ring,
+                        Ionicons.phone_portrait,
                         color: Colors.white,
                         size: 26,
                       ),
@@ -214,7 +241,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .ref()
         .child("drivers")
         .child(currentFirebaseUser!.uid)
-        .child("newRideStatus");
+        .child("newRide");
 
     ref.set("idle"); //searching for ride request
     ref.onValue.listen((event) {});
@@ -246,7 +273,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .ref()
         .child("drivers")
         .child(currentFirebaseUser!.uid)
-        .child("newRideStatus");
+        .child("newRide");
     ref.onDisconnect();
     ref.remove();
     ref = null;

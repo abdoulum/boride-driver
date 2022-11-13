@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 
 class HistoryDesignUIWidget extends StatefulWidget {
+
   TripsHistoryModel? tripsHistoryModel;
 
   HistoryDesignUIWidget({Key? key, this.tripsHistoryModel}) : super(key: key);
@@ -27,7 +28,7 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: BrandColors.colorAccent2,
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
@@ -40,9 +41,9 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 Padding(
                   padding: const EdgeInsets.only(left: 6.0),
                   child: Text(
-                    "Rider: " + widget.tripsHistoryModel!.userName!,
+                    "Rider:  " + widget.tripsHistoryModel!.userName!,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontFamily: "Brand-Regular",
                       fontWeight: FontWeight.bold,
                     ),
@@ -52,21 +53,20 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                   width: 12,
                 ),
                 Text(
-                  "\$ " + widget.tripsHistoryModel!.fareAmount!.substring(0, 5),
+                  "\$ " + widget.tripsHistoryModel!.fareAmount!,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontFamily: "Brand-Regular",
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-
             const SizedBox(
-              height: 2,
+              height: 5,
             ),
 
-            // car details
+            // phone details
             Row(
               children: [
                 const Icon(
@@ -88,16 +88,15 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
               ],
             ),
-
             const SizedBox(
-              height: 20,
+              height: 15,
             ),
 
-            //icon + pickup
+
             Row(
               children: [
                 const Icon(Ionicons.pin_outline,
-                  color: BrandColors.colorGreen,),
+                  color: Colors.red,),
                 const SizedBox(
                   width: 12,
                 ),
@@ -113,17 +112,15 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
               ],
             ),
-
             const SizedBox(
-              height: 14,
+              height: 10,
             ),
 
-            //icon + dropOff
             Row(
               children: [
-                const Icon(
+                 Icon(
                   Ionicons.location,
-                  color: BrandColors.colorPrimary,
+                  color: Colors.greenAccent.shade700,
                 ),
                 const SizedBox(
                   width: 12,
@@ -140,9 +137,8 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
               ],
             ),
-
             const SizedBox(
-              height: 14,
+              height: 10,
             ),
 
             //trip time and date
@@ -151,17 +147,13 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
               children: [
                 const Text(""),
                 Text(
-                  formatDateAndTime(widget.tripsHistoryModel!.time!),
+                  widget.tripsHistoryModel!.time!,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontFamily: "Brand-Regular",
                   ),
                 ),
               ],
-            ),
-
-            const SizedBox(
-              height: 2,
             ),
           ],
         ),

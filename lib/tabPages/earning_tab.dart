@@ -28,6 +28,9 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    double tEarnings = double.parse(Provider.of<AppInfo>(context, listen: true).driverTotalEarnings.toString());
+
     return Container(
       color: Colors.white,
       child: Column(
@@ -54,7 +57,7 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                   const SizedBox(height: 8,),
 
                   Text(
-                    "\$ " + Provider.of<AppInfo>(context, listen: true).driverTotalEarnings,
+                    "\$ " + tEarnings.toStringAsFixed(0),
                     style: const TextStyle(
                       fontFamily: "Brand-Bold",
                       color: Colors.grey,
@@ -72,10 +75,10 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
           ElevatedButton(
               onPressed: ()
               {
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> TripsHistoryScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (c)=> const TripsHistoryScreen()));
               },
               style: ElevatedButton.styleFrom(
-                primary: BrandColors.colorAccent2
+                backgroundColor: BrandColors.colorAccent2
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -101,7 +104,7 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
 
                     Expanded(
                       child: Text(
-                        Provider.of<AppInfo>(context, listen: false).allTripsHistoryInformationList.length.toString(),
+                        Provider.of<AppInfo>(context, listen: false).allTripsHistoryInformationList.toSet().toList().length.toString(),
                         textAlign: TextAlign.end,
                         style: const TextStyle(
                           fontFamily: "Brand-Bold",

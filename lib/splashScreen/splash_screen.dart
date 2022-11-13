@@ -13,15 +13,16 @@ class MySplashScreen extends StatefulWidget {
 }
 
 class _MySplashScreenState extends State<MySplashScreen> {
+
   startTimer() {
     Timer(const Duration(seconds: 3), () async {
       if (fAuth.currentUser != null) {
-        currentFirebaseUser = fAuth.currentUser;
-        Navigator.push(
-            context, MaterialPageRoute(builder: (c) => MainScreen()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (c) => const MainScreen()));
+
       } else {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (c) => LoginScreen()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (c) => const LoginScreen()));
       }
     });
   }
@@ -37,19 +38,16 @@ class _MySplashScreenState extends State<MySplashScreen> {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Colors.black,
+        color: Colors.blue,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset("images/logo1.png"),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "Uber & inDriver Clone App",
+            children: const [
+              Text(
+                "Boride Driver",
                 style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 50,
+                    fontFamily: "Brand-Regular",
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),

@@ -26,118 +26,70 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
       backgroundColor: Colors.transparent,
       elevation: 2,
       child: Container(
-        margin: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(5.0),
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.grey[800],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5.0),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(
-              height: 14,
-            ),
-
-            Image.asset(
-              "images/car_logo.png",
-              width: 160,
-            ),
-
-            const SizedBox(
-              height: 10,
-            ),
-
-            //title
-            const Text(
-              "New Ride Request",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  color: Colors.grey),
-            ),
-
-            const SizedBox(height: 14.0),
-
-            const Divider(
-              height: 3,
-              thickness: 3,
-            ),
-
-            //addresses origin destination
+            const SizedBox(height: 10.0),
+            Image.asset("images/car_logo.png", width: 150.0,),
+            const SizedBox(height: 0.0,),
+            const Text("New Ride Request", style: TextStyle(fontFamily: "Brand Bold", fontSize: 20.0,),),
+            const SizedBox(height: 20.0),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(18.0),
               child: Column(
                 children: [
-                  //origin location with icon
+
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        "images/origin.png",
-                        width: 30,
-                        height: 30,
-                      ),
-                      const SizedBox(
-                        width: 14,
-                      ),
+                      Image.asset("images/origin.png", height: 16.0, width: 16.0,),
+                      const SizedBox(width: 20.0,),
                       Expanded(
-                        child: Text(
-                          widget.userRideRequestDetails!.originAddress!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        child: Text(widget.userRideRequestDetails!.originAddress!, style: const TextStyle(fontSize: 18.0),),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20.0),
 
-                  //destination location with icon
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        "images/destination.png",
-                        width: 30,
-                        height: 30,
-                      ),
-                      const SizedBox(
-                        width: 14,
-                      ),
+                      Image.asset("images/destination.png", height: 16.0, width: 16.0,),
+                      const SizedBox(width: 20.0,),
                       Expanded(
-                        child: Text(
-                          widget.userRideRequestDetails!.destinationAddress!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
+                          child: Text(widget.userRideRequestDetails!.destinationAddress!, style: const TextStyle(fontSize: 18.0),)
                       ),
                     ],
                   ),
+                  const SizedBox(height: 0.0),
+
                 ],
               ),
             ),
 
-            const Divider(
-              height: 3,
-              thickness: 3,
-            ),
+            const SizedBox(height: 15.0),
+            const Divider(height: 2.0, thickness: 4.0,),
+            const SizedBox(height: 0.0),
 
-            //buttons cancel accept
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red,
-                    ),
-                    onPressed: () {
-                      //cancel the rideRequest
+
+                  TextButton(
+
+                    onPressed: ()
+                    {
+
                       Navigator.pop(context);
+
                     },
                     child: Text(
                       "Cancel".toUpperCase(),
@@ -146,25 +98,24 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 25.0),
+
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
-                    ),
-                    onPressed: () {
-                      //accept the rideRequest
+
+                    onPressed: ()
+                    {
                       acceptRideRequest(context);
                     },
-                    child: Text(
-                      "Accept".toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                      ),
-                    ),
+                    child: Text("Accept".toUpperCase(),
+                        style: const TextStyle(fontSize: 14)),
                   ),
+
                 ],
               ),
             ),
+
+            const SizedBox(height: 0.0),
           ],
         ),
       ),
@@ -177,13 +128,13 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
         .ref()
         .child("drivers")
         .child(currentFirebaseUser!.uid)
-        .child("newRideStatus")
+        .child("newRide")
         .once()
         .then((snap) {
       if (snap.snapshot.value != null) {
         getRideRequestId = snap.snapshot.value.toString();
       } else {
-        Fluttertoast.showToast(msg: "This ride request do not exists.");
+        Fluttertoast.showToast(msg: "Ride does not exit anymore");
       }
 
       if (getRideRequestId == widget.userRideRequestDetails!.rideRequestId) {
@@ -191,7 +142,7 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
             .ref()
             .child("drivers")
             .child(currentFirebaseUser!.uid)
-            .child("newRideStatus")
+            .child("newRide")
             .set("accepted");
 
         AssistantMethods.pauseLiveLocationUpdates();
@@ -203,8 +154,17 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
                 builder: (c) => NewTripScreen(
                       userRideRequestDetails: widget.userRideRequestDetails,
                     )));
-      } else {
-        Fluttertoast.showToast(msg: "This Ride Request do not exists.");
+      }
+      else if(getRideRequestId == "cancelled")
+      {
+        Navigator.pop(context);
+        Fluttertoast.showToast(msg: "Ride has been Cancelled.");
+      }
+      else if(getRideRequestId == "timeout")
+      {
+        Fluttertoast.showToast(msg: "Ride has time out.");
+      }else {
+        Fluttertoast.showToast(msg: "Ride does not exit anymore");
       }
     });
   }
