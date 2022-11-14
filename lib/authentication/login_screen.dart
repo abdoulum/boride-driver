@@ -5,7 +5,6 @@ import 'package:boride_driver/splashScreen/splash_screen.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -59,8 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
         if (snap.value != null) {
           currentFirebaseUser = firebaseUser;
           Fluttertoast.showToast(msg: "Login Successful.");
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (c) => const MainScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (c) => const MainScreen()));
         } else {
           Fluttertoast.showToast(msg: "No record exist with this email.");
           fAuth.signOut();
@@ -83,16 +82,29 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-              Text(
-                "Login as a Driver",
+              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              const Text(
+                "Boride Driver",
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 45,
                   fontFamily: "Brand-Regular",
-                  color: Colors.grey.shade700,
+                  color: Colors.blue,
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+              const SizedBox(height: 10),
+              Container(
+                alignment: Alignment.topCenter,
+                child: const Center(
+                  child: Text(
+                      "Drive with boride and earn with your personal vehicle",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Brand-Regular",
+                        color: Colors.black,
+                      )),
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -116,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextFormField(
                           controller: emailTextEditingController,
                           textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.name,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             hintText: "Example@gmail.com",
                             prefixStyle: TextStyle(color: Colors.black),
@@ -175,27 +187,33 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 20,
               ),
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   validateForm();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreenAccent,
-                ),
-                child: const Text(
-                  "Login",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 18,
-                  ),
+                child: Container(
+                  height: 50,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 100, 250, 100),
+                      borderRadius: BorderRadius.circular(30)),
+                  child: const Center(
+                      child: Text(
+                    "Login",
+                    style: TextStyle(fontFamily: "Brand-Regular", fontSize: 18),
+                  )),
                 ),
               ),
-              CupertinoButton(
-                  child: const Text("Already have an account"),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (c) => const NewDriver()));
-                  })
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NewDriver()));
+                },
+                child: const Text(
+                  "Register as a driver",
+                  style: TextStyle(fontFamily: "Brand-Regular", fontSize: 18),
+                ),
+              )
             ],
           ),
         ),
