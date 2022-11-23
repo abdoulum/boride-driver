@@ -1,3 +1,4 @@
+import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/authentication/driver_registation.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
@@ -43,7 +44,11 @@ class _LoginScreenState extends State<LoginScreen> {
             .signInWithEmailAndPassword(
       email: emailTextEditingController.text.trim(),
       password: passwordTextEditingController.text.trim(),
-    )
+    ).whenComplete(() {
+      AssistantMethods.readDriverTotalEarnings(context);
+      AssistantMethods.readDriverWeeklyEarnings(context);
+      AssistantMethods.readDriverRating(context);
+    })
             .catchError((msg) {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Error: " + msg.toString());
@@ -62,9 +67,10 @@ class _LoginScreenState extends State<LoginScreen> {
               context, MaterialPageRoute(builder: (c) => const MainScreen()));
         } else {
           Fluttertoast.showToast(msg: "No record exist with this email.");
-          fAuth.signOut();
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (c) => const MySplashScreen()));
+          FirebaseAuth.instance.signOut().whenComplete(() {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (c) => const MySplashScreen()));
+          });
         }
       });
     } else {
@@ -77,145 +83,158 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-              const Text(
-                "Boride Driver",
-                style: TextStyle(
-                  fontSize: 45,
-                  fontFamily: "Brand-Regular",
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                alignment: Alignment.topCenter,
-                child: const Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ListView(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                const Center(
                   child: Text(
-                      "Drive with boride and earn with your personal vehicle",
+                    "Boride Driver",
+                    style: TextStyle(
+                      fontSize: 45,
+                      fontFamily: "Brand-Bold",
+                      color: Colors.indigo,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Center(
+                        child: Text(
+                            "Drive with boride and earn with your personal vehicle",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontFamily: "Brand-Regular",
+                              color: Colors.black,
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Email",
+                      style: TextStyle(fontFamily: "Brand-Regular"),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      //     margin: EdgeInsets.all(12),
+                      height: 45,
+                      width: 350,
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 243, 245, 247),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: TextFormField(
+                            controller: emailTextEditingController,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(
+                              hintText: "Example@gmail.com",
+                              prefixStyle: TextStyle(color: Colors.black),
+                              // prefixIcon: Icon(Icons.person),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Password",
+                      style: TextStyle(fontFamily: "Brand-Regular"),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      //     margin: EdgeInsets.all(12),
+                      height: 45,
+                      width: 350,
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 243, 245, 247),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: TextFormField(
+                            controller: passwordTextEditingController,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.text,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                              hintText: "********",
+                              prefixStyle: TextStyle(color: Colors.black),
+                              // prefixIcon: Icon(Icons.person),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    validateForm();
+                  },
+                  child: Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    decoration: BoxDecoration(
+                        color: Colors.indigo,
+                        borderRadius: BorderRadius.circular(30)),
+                    child: const Center(
+                        child: Text(
+                      "Login",
                       style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: "Brand-Regular",
-                        color: Colors.black,
-                      )),
+                          color: Colors.white,
+                          fontFamily: "Brand-Regular",
+                          fontSize: 18),
+                    )),
+                  ),
                 ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Email",
-                    style: TextStyle(fontFamily: "Brand-Regular"),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    //     margin: EdgeInsets.all(12),
-                    height: 45,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 243, 245, 247),
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: emailTextEditingController,
-                          textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: "Example@gmail.com",
-                            prefixStyle: TextStyle(color: Colors.black),
-                            // prefixIcon: Icon(Icons.person),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Password",
-                    style: TextStyle(fontFamily: "Brand-Regular"),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    //     margin: EdgeInsets.all(12),
-                    height: 45,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 243, 245, 247),
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: passwordTextEditingController,
-                          textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.text,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: "********",
-                            prefixStyle: TextStyle(color: Colors.black),
-                            // prefixIcon: Icon(Icons.person),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              GestureDetector(
-                onTap: () {
-                  validateForm();
-                },
-                child: Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 100, 250, 100),
-                      borderRadius: BorderRadius.circular(30)),
-                  child: const Center(
-                      child: Text(
-                    "Login",
-                    style: TextStyle(fontFamily: "Brand-Regular", fontSize: 18),
-                  )),
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NewDriver()));
-                },
-                child: const Text(
-                  "Register as a driver",
-                  style: TextStyle(fontFamily: "Brand-Regular", fontSize: 18),
-                ),
-              )
-            ],
-          ),
+                const SizedBox(height: 20),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const NewDriver()));
+                    },
+                    child: const Text("Register as a driver",
+                        style: TextStyle(
+                          color: Colors.black,
+                            fontFamily: "Brand-Regular", fontSize: 18))),
+              ],
+            ),
+          ],
         ),
       ),
     );

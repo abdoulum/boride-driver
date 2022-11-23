@@ -1,3 +1,4 @@
+import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
@@ -1103,27 +1104,26 @@ class _NewDriverState extends State<NewDriver> {
       Fluttertoast.showToast(msg: "Please enter state");
     } else if (phoneController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter phone number");
-    }else if (colorController.text.isEmpty) {
+    } else if (colorController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter color");
-    }else if (brandController.text.isEmpty) {
+    } else if (brandController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter brand");
-    }else if (modelController.text.isEmpty) {
+    } else if (modelController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter model");
-    }else if (yearController.text.isEmpty) {
+    } else if (yearController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter year");
-    }else if (lPlateController.text.isEmpty) {
+    } else if (lPlateController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter plate number");
-    }else if (dLicenseController.text.isEmpty) {
+    } else if (dLicenseController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter License number");
-    }else if (passwordController.text.isEmpty) {
+    } else if (passwordController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter password1");
-    }else if (password2Controller.text.isEmpty) {
+    } else if (password2Controller.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter password2");
-    }
-    else {
-      if(passwordController.text != password2Controller.text) {
+    } else {
+      if (passwordController.text != password2Controller.text) {
         Fluttertoast.showToast(msg: "Passwords does not match");
-      }else{
+      } else {
         _registerDriver();
       }
     }
@@ -1139,17 +1139,18 @@ class _NewDriverState extends State<NewDriver> {
           );
         });
 
-    final User? firebaseUser = (
-        await fAuth.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        ).catchError((msg){
-          Navigator.pop(context);
-          Fluttertoast.showToast(msg: "Error: " + msg.toString());
-        })
-    ).user;
+    final User? firebaseUser = (await fAuth
+            .createUserWithEmailAndPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    )
+            .catchError((msg) {
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+    }))
+        .user;
 
-    if(firebaseUser != null){
+    if (firebaseUser != null) {
       _uploadDocument();
     }
   }
@@ -1166,15 +1167,17 @@ class _NewDriverState extends State<NewDriver> {
     };
     driversRef.child(fAuth.currentUser!.uid).set(driverMap);
 
-    Map driverCarInfoMap =
-    {
+    Map driverCarInfoMap = {
       "car_color": colorController.text.trim(),
       "car_number": lPlateController.text.trim(),
       "car_model": modelController.text.trim(),
-      "type": "Boride-go",
+      "type": "boride-go",
     };
 
-    driversRef.child(currentFirebaseUser!.uid).child("car_details").set(driverCarInfoMap);
+    driversRef
+        .child(fAuth.currentUser!.uid)
+        .child("car_details")
+        .set(driverCarInfoMap);
 
     Map newUserMap = {
       "name": fullNameController.text.toString(),
@@ -1189,11 +1192,13 @@ class _NewDriverState extends State<NewDriver> {
       "car_number": lPlateController.text.trim(),
       "driver_license_number": dLicenseController.text.trim(),
     };
-    DatabaseReference newDriverRef = FirebaseDatabase.instance.ref().child("Driver Signup Request");
+    DatabaseReference newDriverRef =
+        FirebaseDatabase.instance.ref().child("Driver Signup Request");
     newDriverRef.child(fAuth.currentUser!.uid).set(newUserMap);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-
-
-
+    AssistantMethods.readDriverTotalEarnings(context);
+    AssistantMethods.readDriverWeeklyEarnings(context);
+    AssistantMethods.readDriverRating(context);
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 }

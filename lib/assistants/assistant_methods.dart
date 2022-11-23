@@ -65,9 +65,7 @@ class AssistantMethods {
     return directionDetailsInfo;
   }
 
-
-  static Future<DirectionDetailsInfo?>
-  obtainOriginToEndTripDirectionDetails(
+  static Future<DirectionDetailsInfo?> obtainOriginToEndTripDirectionDetails(
       LatLng origionPosition, LatLng destinationPosition) async {
     String urlOriginToEndTripDirectionDetails =
         "https://maps.googleapis.com/maps/api/directions/json?origin=${origionPosition.latitude},${origionPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
@@ -81,21 +79,20 @@ class AssistantMethods {
 
     DirectionDetailsInfo endTripDirectionDetailsInfo = DirectionDetailsInfo();
     endTripDirectionDetailsInfo.e_points =
-    responseDirectionApi["routes"][0]["overview_polyline"]["points"];
+        responseDirectionApi["routes"][0]["overview_polyline"]["points"];
 
     endTripDirectionDetailsInfo.distance_text =
-    responseDirectionApi["routes"][0]["legs"][0]["distance"]["text"];
+        responseDirectionApi["routes"][0]["legs"][0]["distance"]["text"];
     endTripDirectionDetailsInfo.distance_value =
-    responseDirectionApi["routes"][0]["legs"][0]["distance"]["value"];
+        responseDirectionApi["routes"][0]["legs"][0]["distance"]["value"];
 
     endTripDirectionDetailsInfo.duration_text =
-    responseDirectionApi["routes"][0]["legs"][0]["duration"]["text"];
+        responseDirectionApi["routes"][0]["legs"][0]["duration"]["text"];
     endTripDirectionDetailsInfo.duration_value =
-    responseDirectionApi["routes"][0]["legs"][0]["duration"]["value"];
+        responseDirectionApi["routes"][0]["legs"][0]["duration"]["value"];
 
     return endTripDirectionDetailsInfo;
   }
-
 
   static pauseLiveLocationUpdates() {
     streamSubscriptionPosition!.pause();
@@ -123,7 +120,7 @@ class AssistantMethods {
     if (driverVehicleType == "uber-go") {
       return totalFare.truncate().toDouble();
     } else if (driverVehicleType == "uber-x") {
-      double resultFareAmount = (totalFare.truncate()) * 1.4;
+      double resultFareAmount = (totalFare.truncate().toDouble()) * 1.4;
       return resultFareAmount;
     } else {
       return totalFare.truncate().toDouble();
@@ -172,20 +169,22 @@ class AssistantMethods {
           .child("Ride Request")
           .child(eachKey)
           .once()
-          .then((snap) {
-        var eachTripHistory = TripsHistoryModel.fromSnapshot(snap.snapshot);
+          .then((snaps) {
+        var eachTripHistory = TripsHistoryModel.fromSnapshot(snaps.snapshot);
 
-        if ((snap.snapshot.value as Map)["status"] == "ended") {
+        if ((snaps.snapshot.value as Map)["status"] == "ended") {
           //update-add each history to OverAllTrips History Data List
           Provider.of<AppInfo>(context, listen: false)
               .updateOverAllTripsHistoryInformation(eachTripHistory);
+
+
         }
       });
     }
   }
 
   //readDriverEarnings
-  static void readDriverEarnings(context) {
+  static void readDriverTotalEarnings(context) {
     FirebaseDatabase.instance
         .ref()
         .child("drivers")
@@ -193,7 +192,6 @@ class AssistantMethods {
         .child("earnings")
         .once()
         .then((snap) {
-
       if (snap.snapshot.value != null) {
         String driverEarnings = snap.snapshot.value.toString();
         Provider.of<AppInfo>(context, listen: false)
@@ -201,7 +199,23 @@ class AssistantMethods {
       }
     });
 
-    readTripsKeysForOnlineDriver(context);
+  }
+
+  static void readDriverWeeklyEarnings(context) {
+    FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("weekly_earnings")
+        .once()
+        .then((snap) {
+      if (snap.snapshot.value != null) {
+        String driverWeeklyEarnings = snap.snapshot.value.toString();
+        Provider.of<AppInfo>(context, listen: false)
+            .updateDriverWeeklyEarnings(driverWeeklyEarnings);
+      }
+    });
+
   }
 
   static void readDriverRating(context) {
@@ -212,11 +226,10 @@ class AssistantMethods {
         .child("ratings")
         .once()
         .then((snap) {
-
       if (snap.snapshot.value != null) {
         String driverRating = snap.snapshot.value.toString();
         Provider.of<AppInfo>(context, listen: false)
-            .updateDriverTotalEarnings(driverRating);
+            .updateDriverAverageRatings(driverRating);
       }
     });
   }

@@ -1,3 +1,4 @@
+import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/brand_colors.dart';
 import 'package:boride_driver/tabPages/earning_tab.dart';
 import 'package:boride_driver/tabPages/home_tab.dart';
@@ -28,8 +29,10 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
-
-
+    AssistantMethods.readDriverTotalEarnings(context);
+    AssistantMethods.readDriverWeeklyEarnings(context);
+    AssistantMethods.readDriverRating(context);
+    AssistantMethods.readTripsKeysForOnlineDriver(context);
     tabController = TabController(length: 3, vsync: this);
   }
 
@@ -38,6 +41,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
         body: TabBarView(
           physics: const NeverScrollableScrollPhysics(),
           controller: tabController,
@@ -49,7 +53,7 @@ class _MainScreenState extends State<MainScreen>
         ),
         bottomNavigationBar: CustomNavigationBar(
             iconSize: 30.0,
-            selectedColor: Colors.blue,
+            selectedColor: Colors.indigo,
             strokeColor: BrandColors.colorPrimary,
             unSelectedColor: BrandColors.tabAccent,
             backgroundColor: Colors.white,
@@ -65,7 +69,7 @@ class _MainScreenState extends State<MainScreen>
                 ),
               ),
               CustomNavigationBarItem(
-                icon: const Icon(Ionicons.card_outline),
+                icon: const Icon(Ionicons.card),
                 title: const Text(
                   "Earnings",
                   style: TextStyle(
@@ -75,7 +79,7 @@ class _MainScreenState extends State<MainScreen>
                 ),
               ),
               CustomNavigationBarItem(
-                icon: const Icon(Ionicons.person_outline),
+                icon: const Icon(Ionicons.person),
                 title: const Text(
                   "Accounts",
                   style: TextStyle(

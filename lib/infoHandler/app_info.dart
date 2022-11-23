@@ -8,6 +8,7 @@ class AppInfo extends ChangeNotifier
   Directions? userPickUpLocation, userDropOffLocation;
   int countTotalTrips = 0;
   String driverTotalEarnings = "0";
+  String driverWeeklyEarnings = "0";
   String driverAverageRatings = "0" ;
   List<String> historyTripsKeysList = [];
   List<TripsHistoryModel> allTripsHistoryInformationList = [];
@@ -41,6 +42,7 @@ class AppInfo extends ChangeNotifier
   updateOverAllTripsHistoryInformation(TripsHistoryModel eachTripHistory)
   {
     allTripsHistoryInformationList.add(eachTripHistory);
+    notifyListeners();
   }
 
   updateDriverTotalEarnings(String driverEarnings){
@@ -48,7 +50,13 @@ class AppInfo extends ChangeNotifier
     notifyListeners();
   }
 
+  updateDriverWeeklyEarnings(String driverWeekEarnings){
+    driverWeeklyEarnings = driverWeekEarnings;
+    notifyListeners();
+  }
+
   updateDriverAverageRatings(String driverRating) {
     driverAverageRatings = driverRating;
+    notifyListeners();
   }
 }

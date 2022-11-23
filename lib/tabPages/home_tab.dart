@@ -4,13 +4,13 @@ import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/brand_colors.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/push_notifications/push_notification_system.dart';
+import 'package:boride_driver/testui.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
-
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({Key? key}) : super(key: key);
@@ -89,9 +89,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
     PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
     pushNotificationSystem.initialize(context);
     pushNotificationSystem.generateAndGetToken();
-
-    AssistantMethods.readDriverEarnings(context);
-    AssistantMethods.readDriverRating(context);
   }
 
   @override
@@ -136,7 +133,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
           bottom: 10,
           child: GestureDetector(
             onTap: () {
-              locateDriverPosition();
+               locateDriverPosition();
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => TestUi()));
             },
             child: Container(
               decoration: BoxDecoration(
@@ -157,7 +155,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
               child: const CircleAvatar(
                 backgroundColor: Colors.white,
                 radius: 25.0,
-                child: Icon(Ionicons.locate, color: Colors.blue),
+                child: Icon(Ionicons.locate, color: Colors.indigo),
               ),
             ),
           ),
@@ -185,7 +183,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
                       isDriverActive = true;
                       buttonColor = Colors.transparent;
                     });
-
                   } else //online
                   {
                     driverIsOfflineNow();
@@ -198,7 +195,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: statusText != "Now Online"? Colors.red : BrandColors.online,
+                  backgroundColor: statusText != "Now Online"
+                      ? Color.fromARGB(255, 241, 42, 28)
+                      : Colors.indigo,
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),

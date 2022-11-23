@@ -1,10 +1,12 @@
 import 'package:boride_driver/assistants/assistant_methods.dart';
-import 'package:boride_driver/brand_colors.dart';
+import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/infoHandler/app_info.dart';
 import 'package:boride_driver/mainScreens/trips_history_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwave_standard/flutterwave.dart';
 import 'package:provider/provider.dart';
-
+import 'package:uuid/uuid.dart';
 
 class EarningsTabPage extends StatefulWidget {
   const EarningsTabPage({Key? key}) : super(key: key);
@@ -15,115 +17,194 @@ class EarningsTabPage extends StatefulWidget {
 
 class _EarningsTabPageState extends State<EarningsTabPage> {
 
-  @override
-  void initState()
-  {
-    super.initState();
-    AssistantMethods.readDriverEarnings(context);
-
-
-  }
-
-
+  bool isTestMode = true;
 
   @override
   Widget build(BuildContext context) {
+    double wEarnings = double.parse(Provider.of<AppInfo>(context, listen: true)
+        .driverWeeklyEarnings
+        .toString());
 
-    double tEarnings = double.parse(Provider.of<AppInfo>(context, listen: true).driverTotalEarnings.toString());
-
-    return Container(
-      color: Colors.white,
-      child: Column(
-        children: [
-
-          //earnings
-          Container(
-            color: Colors.white,
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 75),
-              child: Column(
-                children: [
-
-                  const Text(
-                    "Your Earnings :",
-                    style: TextStyle(
-                      fontFamily: "Brand-Regular",
-                      color: Colors.black,
-                      fontSize: 20,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8,),
-
-                  Text(
-                    "\$ " + tEarnings.toStringAsFixed(0),
-                    style: const TextStyle(
-                      fontFamily: "Brand-Bold",
-                      color: Colors.grey,
-                      fontSize: 60,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text(
+            "Earnings",
+            style: TextStyle(color: Colors.black, fontFamily: "Brand-Regular"),
           ),
-
-          //total number of trips
-          ElevatedButton(
-              onPressed: ()
-              {
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> const TripsHistoryScreen()));
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: BrandColors.colorAccent2
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                child: Row(
-                  children: [
-
-                    Image.asset(
-                      "images/car_logo.png",
-                      width: 100,
-                    ),
-
-                    const SizedBox(
-                      width: 6,
-                    ),
-
-                    const Text(
-                      "Trips Completed",
-                      style: TextStyle(
-                        fontFamily: "Brand-Regular",
-                        color: Colors.black54,
+        ),
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+          color: Colors.white,
+          child: ListView(
+            children: [
+              Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    color: Colors.white,
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "Week earnings: ",
+                            style: TextStyle(
+                                fontFamily: "Brand-Regular",
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "\$ " + wEarnings.toStringAsFixed(0),
+                            style: const TextStyle(
+                              fontFamily: "Brand-Bold",
+                              color: Colors.black87,
+                              fontSize: 60,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
 
-                    Expanded(
-                      child: Text(
-                        Provider.of<AppInfo>(context, listen: false).allTripsHistoryInformationList.toSet().toList().length.toString(),
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontFamily: "Brand-Bold",
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                  //total number of trips
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(15)),
+                    width: 370,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (c) => const TripsHistoryScreen()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 225, 226, 233),
+                          shadowColor: Colors.transparent),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            const Text(
+                              "Trip History",
+                              style: TextStyle(
+                                fontFamily: "Brand-Bold",
+                                fontSize: 25,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            Image.asset(
+                              "images/car_logo.png",
+                              width: 100,
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
-
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(15)),
+                    width: 370,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _handlePaymentInitialization();
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 225, 226, 233),
+                          shadowColor: Colors.transparent),
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                        child: Text(
+                          "Pay commission",
+                          style: TextStyle(
+                            fontFamily: "Brand-Bold",
+                            fontSize: 25,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                ],
               ),
+            ],
           ),
-
-        ],
+        ),
       ),
     );
   }
 
+  _handlePaymentInitialization() async {
+    showLoading("Loading, please wait ......");
+
+    final Customer customer = Customer(
+        name: onlineDriverData.name!,
+        phoneNumber: onlineDriverData.phone!,
+        email: onlineDriverData.email!);
+
+    final Flutterwave flutterWave = Flutterwave(
+        context: context,
+        publicKey: getPublicKey(),
+        currency: "NGN",
+        redirectUrl: 'https://facebook.com',
+        txRef: "${const Uuid().v1()}-Txd",
+        amount: "8000",
+        customer: customer,
+        paymentOptions: "card, bank transfer",
+        customization: Customization(title: "Test Payment"),
+        isTestMode: isTestMode);
+    final ChargeResponse response = await flutterWave.charge().whenComplete(() {
+      Fluttertoast.showToast(msg: "Success///");
+      Navigator.pop(context);
+    });
+  }
+
+  String getPublicKey() {
+    if (isTestMode) return "FLWPUBK_TEST-1b50fcec6e04d0b2b0e471d74827197b-X";
+    return "FLWPUBK-45587fdb1c84335354ab0fa388b803d5-X";
+  }
+
+  Future<void> showLoading(String message) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            margin: const EdgeInsets.fromLTRB(30, 20, 30, 20),
+            width: double.infinity,
+            height: 50,
+            child: Text(message),
+          ),
+        );
+      },
+    );
+  }
 }

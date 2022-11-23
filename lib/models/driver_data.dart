@@ -9,6 +9,7 @@ class DriverData {
   String? car_color;
   String? car_model;
   String? car_number;
+  String? car_brand;
   String? earnings;
 
   DriverData({
@@ -18,6 +19,7 @@ class DriverData {
     this.email,
     this.car_color,
     this.car_model,
+    this.car_brand,
     this.car_number,
     this.earnings,
   });

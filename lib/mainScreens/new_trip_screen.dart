@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ionicons/ionicons.dart';
 
 import '../assistants/assistant_methods.dart';
 import '../widgets/progress_dialog.dart';
@@ -52,6 +53,9 @@ class _NewTripScreenState extends State<NewTripScreen> {
   String durationFromOriginToDestination = "";
 
   bool isRequestDirectionDetails = false;
+
+  String paymentMethod = "";
+  String phone = "";
 
   //Step 1:: when driver accepts the user ride request
   // originLatLng = driverCurrent Location
@@ -277,6 +281,8 @@ class _NewTripScreenState extends State<NewTripScreen> {
   Widget build(BuildContext context) {
     createDriverIconMarker();
 
+    phone = widget.userRideRequestDetails!.userPhone!;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -332,38 +338,65 @@ class _NewTripScreenState extends State<NewTripScreen> {
                   ),
                 ],
               ),
-              height: 250.0,
+              height:MediaQuery.of(context).size.height * 0.35,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 18.0),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                 child: Column(
                   children: [
-                    Text(
+                     Text(
                       durationFromOriginToDestination,
                       style: const TextStyle(
                           fontSize: 14.0,
                           fontFamily: "Brand-Regular",
-                          color: Colors.deepPurple),
+                          color: Colors.indigo),
                     ),
                     const SizedBox(
-                      height: 16.0,
+                      height: 10.0,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                         Text(
                           widget.userRideRequestDetails!.userName!,
                           style: const TextStyle(
-                              fontFamily: "Brand-Regular", fontSize: 24.0),
+                              fontFamily: "Brand-Regular", fontSize: 22.0),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 10.0),
-                          child: Icon(Icons.phone_android),
+
+                        const Spacer(),
+
+                        Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 5),
+                              decoration: BoxDecoration(
+                                  color:
+                                  const Color.fromARGB(255, 243, 245, 247),
+                                  borderRadius: BorderRadius.circular(30)),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.grey.shade200,
+                                radius: 25.0,
+                                child: IconButton(
+                                  icon: const Icon(Ionicons.call),
+                                  color: Colors.green,
+                                  onPressed: () {
+                                  },
+                                ),
+                              ),
+                            ),
+                            const Text(
+                              "Call rider",
+                              style: TextStyle(
+                                  fontSize: 12, fontFamily: "Brand-Regular"),
+                            )
+                          ],
                         ),
+
                       ],
                     ),
+
                     const SizedBox(
-                      height: 26.0,
+                      height: 5.0,
                     ),
                     Row(
                       children: [
@@ -375,17 +408,17 @@ class _NewTripScreenState extends State<NewTripScreen> {
                         const SizedBox(
                           width: 18.0,
                         ),
-                        Expanded(
+                         Expanded(
                           child: Text(
                             widget.userRideRequestDetails!.originAddress!,
-                            style: const TextStyle(fontSize: 18.0),
+                            style: const TextStyle(fontSize: 16.0, fontFamily: "Brand-Regular"),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(
-                      height: 16.0,
+                      height: 10.0,
                     ),
                     Row(
                       children: [
@@ -397,76 +430,81 @@ class _NewTripScreenState extends State<NewTripScreen> {
                         const SizedBox(
                           width: 18.0,
                         ),
-                        Expanded(
+                         Expanded(
                           child: Text(
                             widget.userRideRequestDetails!.destinationAddress!,
-                            style: const TextStyle(fontSize: 18.0),
+                            style: const TextStyle(fontSize: 16.0, fontFamily: "Brand-Regular"),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 26.0,
-                    ),
+                    const Padding(
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: Divider(
+                          height: 10,
+                          thickness: 0.2,
+                          color: Colors.black,
+                        )),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: ElevatedButton.icon(
-                        onPressed: () async {
-                          //[driver has arrived at user PickUp Location] - Arrived Button
-                          if (rideRequestStatus == "accepted") {
-                            rideRequestStatus = "arrived";
-
-                            FirebaseDatabase.instance
-                                .ref()
-                                .child("Ride Request")
-                                .child(widget
-                                    .userRideRequestDetails!.rideRequestId!)
-                                .child("status")
-                                .set(rideRequestStatus);
-
-                            setState(() {
-                              buttonTitle = "Let's Go"; //start the trip
-                              buttonColor = Colors.lightGreen;
-                            });
-
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext c) => ProgressDialog(
-                                message: "Loading...",
-                              ),
-                            );
-
-                            await drawPolyLineFromOriginToDestination(
-                                widget.userRideRequestDetails!.originLatLng!,
-                                widget.userRideRequestDetails!
-                                    .destinationLatLng!);
-
-                            Navigator.pop(context);
-                          }
-                          //[user has already sit in driver's car. Driver start trip now] - Lets Go Button
-                          else if (rideRequestStatus == "arrived") {
-                            rideRequestStatus = "onride";
-
-                            FirebaseDatabase.instance
-                                .ref()
-                                .child("Ride Request")
-                                .child(widget
-                                    .userRideRequestDetails!.rideRequestId!)
-                                .child("status")
-                                .set(rideRequestStatus);
-
-                            setState(() {
-                              buttonTitle = "End Trip"; //end the trip
-                              buttonColor = Colors.redAccent;
-                            });
-                          }
-                          //[user/Driver reached to the dropOff Destination Location] - End Trip Button
-                          else if (rideRequestStatus == "onride") {
-                            endTripNow();
-                          }
-                        },
+                        // onPressed: () async {
+                        //   //[driver has arrived at user PickUp Location] - Arrived Button
+                        //   if (rideRequestStatus == "accepted") {
+                        //     rideRequestStatus = "arrived";
+                        //
+                        //     FirebaseDatabase.instance
+                        //         .ref()
+                        //         .child("Ride Request")
+                        //         .child(widget
+                        //         .userRideRequestDetails!.rideRequestId!)
+                        //         .child("status")
+                        //         .set(rideRequestStatus);
+                        //
+                        //     setState(() {
+                        //       buttonTitle = "Let's Go"; //start the trip
+                        //       buttonColor = Colors.lightGreen;
+                        //     });
+                        //
+                        //     showDialog(
+                        //       context: context,
+                        //       barrierDismissible: false,
+                        //       builder: (BuildContext c) => ProgressDialog(
+                        //         message: "Loading...",
+                        //       ),
+                        //     );
+                        //
+                        //     await drawPolyLineFromOriginToDestination(
+                        //         widget.userRideRequestDetails!.originLatLng!,
+                        //         widget.userRideRequestDetails!
+                        //             .destinationLatLng!);
+                        //
+                        //     Navigator.pop(context);
+                        //   }
+                        //   //[user has already sit in driver's car. Driver start trip now] - Lets Go Button
+                        //   else if (rideRequestStatus == "arrived") {
+                        //     rideRequestStatus = "onride";
+                        //
+                        //     FirebaseDatabase.instance
+                        //         .ref()
+                        //         .child("Ride Request")
+                        //         .child(widget
+                        //         .userRideRequestDetails!.rideRequestId!)
+                        //         .child("status")
+                        //         .set(rideRequestStatus);
+                        //
+                        //     setState(() {
+                        //       buttonTitle = "End Trip"; //end the trip
+                        //       buttonColor = Colors.redAccent;
+                        //     });
+                        //   }
+                        //   //[user/Driver reached to the dropOff Destination Location] - End Trip Button
+                        //   else if (rideRequestStatus == "onride") {
+                        //     endTripNow();
+                        //   }
+                        // },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: buttonColor,
                         ),
@@ -475,15 +513,16 @@ class _NewTripScreenState extends State<NewTripScreen> {
                           color: Colors.white,
                           size: 25,
                         ),
-                        label: Text(
-                          buttonTitle!,
-                          style: const TextStyle(
+                        label: const Text(
+                          "buttonTitle",
+                          style: TextStyle(
                             color: Colors.white,
                             fontFamily: "Brand-Regular",
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        onPressed: () {},
                       ),
                     ),
                   ],
@@ -504,6 +543,8 @@ class _NewTripScreenState extends State<NewTripScreen> {
         message: "Please wait...",
       ),
     );
+
+
 
     Map endingTripLocationMap = {
       "latitude": driverCurrentPosition!.latitude.toString(),
@@ -549,23 +590,38 @@ class _NewTripScreenState extends State<NewTripScreen> {
 
     Navigator.pop(context);
 
-    //display fare amount in dialog box
-    var response = await showDialog(
-      context: context,
-      builder: (BuildContext c) => FareAmountCollectionDialog(
-        totalFareAmount: totalFareAmount,
-      ),
-    );
+    DatabaseReference paymentRef = FirebaseDatabase.instance.ref().child("Ride Request").child(widget.userRideRequestDetails!.rideRequestId!);
+    paymentRef.child("payment_method").once().then((snap)  {
+      if (snap.snapshot.value != null) {
+        setState(() {
+          paymentMethod = snap.snapshot.value.toString();
+        });
+      }
+    });
 
-    if (response == "fareCollected") {
-      Navigator.pop(context);
+    if(paymentMethod == "Card") {
+
+    }
+    else {
+      var response = await showDialog(
+        context: context,
+        builder: (BuildContext c) => FareAmountCollectionDialog(
+          totalFareAmount: totalFareAmount,
+        ),
+      );
+
+      if (response == "fareCollected") {
+        Navigator.pop(context);
+      }
+
     }
 
     //save fare amount to driver total earnings
-    saveFareAmountToDriverEarnings(totalFareAmount);
+    saveFareAmountToDriverTotalEarnings(totalFareAmount);
+    saveFareAmountToDriverWeeklyEarnings(totalFareAmount);
   }
 
-  saveFareAmountToDriverEarnings(double totalFareAmount) {
+  saveFareAmountToDriverTotalEarnings(double totalFareAmount) {
     FirebaseDatabase.instance
         .ref()
         .child("drivers")
@@ -595,6 +651,39 @@ class _NewTripScreenState extends State<NewTripScreen> {
             .set(totalFareAmount.toString());
       }
     });
+
+  }
+  saveFareAmountToDriverWeeklyEarnings(double totalFareAmount) {
+    FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentFirebaseUser!.uid)
+        .child("weekly_earnings")
+        .once()
+        .then((snap) {
+      if (snap.snapshot.value != null) //earnings sub Child exists
+          {
+        //12
+        double oldEarnings = double.parse(snap.snapshot.value.toString());
+        double driverTotalEarnings = totalFareAmount + oldEarnings;
+
+        FirebaseDatabase.instance
+            .ref()
+            .child("drivers")
+            .child(currentFirebaseUser!.uid)
+            .child("weekly_earnings")
+            .set(driverTotalEarnings.toString());
+      } else //earnings sub Child do not exists
+          {
+        FirebaseDatabase.instance
+            .ref()
+            .child("drivers")
+            .child(currentFirebaseUser!.uid)
+            .child("weekly_earnings")
+            .set(totalFareAmount.toString());
+      }
+    });
+
   }
 
   saveAssignedDriverDetailsToUserRideRequest() {
@@ -613,9 +702,9 @@ class _NewTripScreenState extends State<NewTripScreen> {
     databaseReference.child("driverId").set(onlineDriverData.id);
     databaseReference.child("driverName").set(onlineDriverData.name);
     databaseReference.child("driverPhone").set(onlineDriverData.phone);
-    databaseReference.child("car_details").set(
-        onlineDriverData.car_color.toString() +
-            onlineDriverData.car_model.toString());
+    databaseReference.child("car_color").set(onlineDriverData.car_color.toString());
+    databaseReference.child("car_model").set(onlineDriverData.car_model.toString());
+    databaseReference.child("car_number").set(onlineDriverData.car_number.toString());
 
     saveRideRequestIdToDriverHistory();
   }

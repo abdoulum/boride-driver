@@ -1,11 +1,9 @@
-import 'package:boride_driver/brand_colors.dart';
 import 'package:boride_driver/models/trip_history_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 
 class HistoryDesignUIWidget extends StatefulWidget {
-
   TripsHistoryModel? tripsHistoryModel;
 
   HistoryDesignUIWidget({Key? key, this.tripsHistoryModel}) : super(key: key);
@@ -28,7 +26,10 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: const Color.fromARGB(255, 225, 226, 233),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
@@ -38,15 +39,12 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 6.0),
-                  child: Text(
-                    "Rider:  " + widget.tripsHistoryModel!.userName!,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontFamily: "Brand-Regular",
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  "Rider:  " + widget.tripsHistoryModel!.userName!,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontFamily: "Brand-Regular",
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(
@@ -62,99 +60,59 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
               ],
             ),
+
+            // phone details
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
+              children: [
+                const Icon(
+                  Ionicons.pin,
+                  color: Colors.green,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Text(widget.tripsHistoryModel!.originAddress!.length > 32 ?
+                    widget.tripsHistoryModel!.originAddress!.substring(0, 32) : widget.tripsHistoryModel!.originAddress!,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontFamily: "Brand-Regular",
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(
               height: 5,
             ),
 
-            // phone details
             Row(
               children: [
                 const Icon(
-                  Ionicons.phone_portrait_outline,
-                  color: Colors.black,
-                  size: 28,
-                ),
-                const SizedBox(
-                  width: 12,
-                ),
-                Text(
-                  widget.tripsHistoryModel!.userPhone!,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontFamily: "Brand-Regular",
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-
-
-            Row(
-              children: [
-                const Icon(Ionicons.pin_outline,
-                  color: Colors.red,),
-                const SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                  child: Text(
-                    widget.tripsHistoryModel!.originAddress!,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: "Brand-Regular",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-
-            Row(
-              children: [
-                 Icon(
                   Ionicons.location,
-                  color: Colors.greenAccent.shade700,
+                  color: Colors.indigo,
                 ),
                 const SizedBox(
-                  width: 12,
+                  width: 10,
                 ),
                 Expanded(
                   child: Text(
-                    widget.tripsHistoryModel!.destinationAddress!,
+                    widget.tripsHistoryModel!.destinationAddress!.length > 32 ?
+                    widget.tripsHistoryModel!.destinationAddress!.substring(0, 32) : widget.tripsHistoryModel!.destinationAddress!,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontFamily: "Brand-Regular",
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(
-              height: 10,
-            ),
 
-            //trip time and date
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(""),
-                Text(
-                  widget.tripsHistoryModel!.time!,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontFamily: "Brand-Regular",
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
