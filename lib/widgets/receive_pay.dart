@@ -61,6 +61,7 @@ class _FareAmountCollectionDialogState extends State<FareAmountCollectionDialog>
                 onPressed: () async
                 {
                   Navigator.pop(context, "fareCollected");
+
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(17.0),

@@ -4,6 +4,7 @@ import 'package:boride_driver/mainScreens/new_trip_screen.dart';
 import 'package:boride_driver/models/user_ride_request_information.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class NotificationDialogBox extends StatefulWidget {
@@ -23,99 +24,156 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
-      backgroundColor: Colors.transparent,
       elevation: 2,
       child: Container(
-        margin: const EdgeInsets.all(5.0),
+        margin: const EdgeInsets.all(8),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white70,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(
+              height: 14,
+            ),
+
+            Image.asset(
+              "images/car_logo.png",
+              width: 100,
+            ),
+
+            const SizedBox(
+              height: 10,
+            ),
+
+            //title
+            const Text(
+              "New Ride Request",
+              style: TextStyle(
+                  fontFamily: "Brand-Regular",
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black),
+            ),
+
             const SizedBox(height: 10.0),
-            Image.asset("images/car_logo.png", width: 150.0,),
-            const SizedBox(height: 0.0,),
-            const Text("New Ride Request", style: TextStyle(fontFamily: "Brand Bold", fontSize: 20.0,),),
-            const SizedBox(height: 20.0),
+
+            const Divider(
+              height: 2,
+              thickness: 0.2,
+              color: Colors.black,
+            ),
+
+            //addresses origin destination
             Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-
+                  //origin location with icon
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset("images/origin.png", height: 16.0, width: 16.0,),
-                      const SizedBox(width: 20.0,),
+                      Image.asset(
+                        "images/origin.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(
+                        width: 14,
+                      ),
                       Expanded(
-                        child: Text(widget.userRideRequestDetails!.originAddress!, style: const TextStyle(fontSize: 18.0),),
+                        child: Text(
+                          widget.userRideRequestDetails!.originAddress!,
+                          style: const TextStyle(
+                            fontFamily: "Brand-Regular",
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 20.0),
 
+                  //destination location with icon
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset("images/destination.png", height: 16.0, width: 16.0,),
-                      const SizedBox(width: 20.0,),
+                      Image.asset(
+                        "images/destination.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(
+                        width: 14,
+                      ),
                       Expanded(
-                          child: Text(widget.userRideRequestDetails!.destinationAddress!, style: const TextStyle(fontSize: 18.0),)
+                        child: Text(
+                          widget.userRideRequestDetails!.destinationAddress!,
+                          style: const TextStyle(
+                            fontFamily: "Brand-Regular",
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 0.0),
-
                 ],
               ),
             ),
 
-            const SizedBox(height: 15.0),
-            const Divider(height: 2.0, thickness: 4.0,),
-            const SizedBox(height: 0.0),
+            const Divider(
+              height: 2,
+              thickness: 0.2,
+              color: Colors.black,
+            ),
 
+            //buttons cancel accept
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(15.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-                  TextButton(
-
-                    onPressed: ()
-                    {
-
-                      Navigator.pop(context);
-
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    onPressed: () {
+                      FirebaseDatabase.instance.ref().child("drivers").child(fAuth.currentUser!.uid).child("newRide").set("cancelled");
+                      Future.delayed(const Duration(milliseconds: 1000), () {
+                        Navigator.pop(context);
+                      });
                     },
                     child: Text(
                       "Cancel".toUpperCase(),
                       style: const TextStyle(
-                        fontSize: 14.0,
+                        fontFamily: "Brand-Regular",
+                        fontSize: 12.0,
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 25.0),
-
                   ElevatedButton(
-
-                    onPressed: ()
-                    {
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    onPressed: () {
+                      //accept the rideRequest
                       acceptRideRequest(context);
                     },
-                    child: Text("Accept".toUpperCase(),
-                        style: const TextStyle(fontSize: 14)),
+                    child: Text(
+                      "Accept".toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: "Brand-Regular",
+                        fontSize: 12.0,
+                      ),
+                    ),
                   ),
-
                 ],
               ),
             ),
-
-            const SizedBox(height: 0.0),
           ],
         ),
       ),
@@ -123,6 +181,7 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
   }
 
   acceptRideRequest(BuildContext context) {
+    Navigator.pop(context);
     String getRideRequestId = "";
     FirebaseDatabase.instance
         .ref()
@@ -132,9 +191,12 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
         .once()
         .then((snap) {
       if (snap.snapshot.value != null) {
-        getRideRequestId = snap.snapshot.value.toString();
+        setState(() {
+          getRideRequestId = snap.snapshot.value.toString();
+
+        });
       } else {
-        Fluttertoast.showToast(msg: "Ride does not exit anymore");
+        Fluttertoast.showToast(msg: "Ride not available");
       }
 
       if (getRideRequestId == widget.userRideRequestDetails!.rideRequestId) {
@@ -154,17 +216,12 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
                 builder: (c) => NewTripScreen(
                       userRideRequestDetails: widget.userRideRequestDetails,
                     )));
-      }
-      else if(getRideRequestId == "cancelled")
-      {
-        Navigator.pop(context);
-        Fluttertoast.showToast(msg: "Ride has been Cancelled.");
-      }
-      else if(getRideRequestId == "timeout")
-      {
-        Fluttertoast.showToast(msg: "Ride has time out.");
-      }else {
-        Fluttertoast.showToast(msg: "Ride does not exit anymore");
+      } else if (getRideRequestId == "cancelled") {
+        Fluttertoast.showToast(msg: "Ride not available");
+      } else if (getRideRequestId == "timeout") {
+        Fluttertoast.showToast(msg: "Ride not available");
+      } else {
+        Fluttertoast.showToast(msg: "Ride not available");
       }
     });
   }

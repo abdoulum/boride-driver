@@ -2,6 +2,7 @@ import 'package:boride_driver/assistants/request_assistant.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/global/map_key.dart';
 import 'package:boride_driver/infoHandler/app_info.dart';
+import 'package:boride_driver/models/bank_model.dart';
 import 'package:boride_driver/models/direction_details_info.dart';
 import 'package:boride_driver/models/directions.dart';
 import 'package:boride_driver/models/trip_history_model.dart';
@@ -96,35 +97,14 @@ class AssistantMethods {
 
   static pauseLiveLocationUpdates() {
     streamSubscriptionPosition!.pause();
-    Geofire.removeLocation(currentFirebaseUser!.uid);
+    streamSubscriptionPosition!.cancel();
+    Geofire.removeLocation(fAuth.currentUser!.uid);
   }
 
   static resumeLiveLocationUpdates() {
     streamSubscriptionPosition!.resume();
     Geofire.setLocation(currentFirebaseUser!.uid,
         driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
-  }
-
-  static double calculateFareAmountFromOriginToDestination(
-      DirectionDetailsInfo directionDetailsInfo) {
-    // per km = ₦50,
-    // per min = ₦10
-    // base fare = ₦150
-
-    double baseFare = 150;
-    double distanceFare = (directionDetailsInfo.distance_value! / 1000) * 50;
-    double timeFare = (directionDetailsInfo.duration_value! / 60) * 10;
-
-    double totalFare = baseFare + distanceFare + timeFare;
-
-    if (driverVehicleType == "uber-go") {
-      return totalFare.truncate().toDouble();
-    } else if (driverVehicleType == "uber-x") {
-      double resultFareAmount = (totalFare.truncate().toDouble()) * 1.4;
-      return resultFareAmount;
-    } else {
-      return totalFare.truncate().toDouble();
-    }
   }
 
   //retrieve the trips KEYS for online user
@@ -176,8 +156,6 @@ class AssistantMethods {
           //update-add each history to OverAllTrips History Data List
           Provider.of<AppInfo>(context, listen: false)
               .updateOverAllTripsHistoryInformation(eachTripHistory);
-
-
         }
       });
     }
@@ -198,7 +176,6 @@ class AssistantMethods {
             .updateDriverTotalEarnings(driverEarnings);
       }
     });
-
   }
 
   static void readDriverWeeklyEarnings(context) {
@@ -215,7 +192,6 @@ class AssistantMethods {
             .updateDriverWeeklyEarnings(driverWeeklyEarnings);
       }
     });
-
   }
 
   static void readDriverRating(context) {
@@ -232,5 +208,72 @@ class AssistantMethods {
             .updateDriverAverageRatings(driverRating);
       }
     });
+  }
+
+  static void getBankData(context) {
+    DatabaseReference bankingRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("bank_details");
+    bankingRef.once().then((snapshot) {
+      if (snapshot.snapshot.value != null) {
+        bankInfoModel = BankInfoModel.fromSnapshot(snapshot.snapshot);
+      }
+    });
+  }
+
+  static calculateFareAmountFromOriginToDestination(
+      DirectionDetailsInfo directionDetailsInfo) {
+    // per km = ₦70,
+    // per min = ₦10
+    // base fare = ₦250
+
+    double baseFare = 250;
+    double distanceFare = (directionDetailsInfo.distance_value! / 1000) * 70;
+    double timeFare = (directionDetailsInfo.duration_value! / 60) * 10;
+
+    double totalFare = baseFare + distanceFare + timeFare;
+
+    if (driverVehicleType == "boride-go") {
+      if (totalFare <= 400) {
+        totalFare = 500;
+        return (((totalFare - 1) ~/ 100) * 100).toInt();
+      }
+    } else if (driverVehicleType == "boride-corporate") {
+      totalFare = totalFare + 300;
+      return (((totalFare - 0) ~/ 100) * 100).toInt();
+    } else {
+      return totalFare.truncate();
+    }
+  }
+
+  static calculateFareAmountFromOriginToDestinationDiscount(
+      DirectionDetailsInfo directionDetailsInfo, int discountP) {
+    // per km = ₦70,
+    // per min = ₦10
+    // base fare = ₦250
+
+    double baseFare = 250;
+    double distanceFare = (directionDetailsInfo.distance_value! / 1000) * 70;
+    double timeFare = (directionDetailsInfo.duration_value! / 60) * 10;
+
+    double totalFare = baseFare + distanceFare + timeFare;
+
+    if (driverVehicleType == "boride-go") {
+      var dTotalFare;
+      dTotalFare = totalFare - ((discountP / 100) * totalFare);
+      return (((dTotalFare - 0) ~/ 100) * 100).toInt();
+    }
+
+    else if (driverVehicleType == "boride-corporate") {
+      var nTotalFare = totalFare + 300;
+      var dTotalFare = nTotalFare - ((discountP / 100) * totalFare);
+      return (((dTotalFare - 0) ~/ 100) * 100).toInt();
+    }
+
+    else {
+      return totalFare.truncate();
+    }
   }
 }

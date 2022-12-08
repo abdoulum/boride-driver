@@ -3,22 +3,28 @@ import 'package:boride_driver/splashScreen/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setBool('my_state', false);
 
   runApp(
-    MyApp(
-      child: ChangeNotifierProvider(
-        create: (context) => AppInfo(),
-        child: MaterialApp(
-          title: 'Drivers App',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
+    Phoenix(
+      child: MyApp(
+        child: ChangeNotifierProvider(
+          create: (context) => AppInfo(),
+          child: MaterialApp(
+            title: 'Drivers App',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: const MySplashScreen(),
+            debugShowCheckedModeBanner: false,
           ),
-          home: const MySplashScreen(),
-          debugShowCheckedModeBanner: false,
         ),
       ),
     ),

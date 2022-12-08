@@ -1,4 +1,3 @@
-import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/infoHandler/app_info.dart';
 import 'package:boride_driver/mainScreens/trips_history_screen.dart';
@@ -16,7 +15,6 @@ class EarningsTabPage extends StatefulWidget {
 }
 
 class _EarningsTabPageState extends State<EarningsTabPage> {
-
   bool isTestMode = true;
 
   @override
@@ -81,7 +79,8 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                     decoration: BoxDecoration(
                         color: Colors.grey.shade400,
                         borderRadius: BorderRadius.circular(15)),
-                    width: 370,
+                    width: MediaQuery.of(context).size.width * 1,
+
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -126,7 +125,7 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                     decoration: BoxDecoration(
                         color: Colors.grey.shade400,
                         borderRadius: BorderRadius.circular(15)),
-                    width: 370,
+                    width: MediaQuery.of(context).size.width * 1,
                     child: ElevatedButton(
                       onPressed: () {
                         _handlePaymentInitialization();

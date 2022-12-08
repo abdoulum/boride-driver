@@ -94,7 +94,7 @@ class PushNotificationSystem {
           ),
         );
       } else {
-        Fluttertoast.showToast(msg: "This Ride Request Id do not exists.");
+
       }
     });
   }

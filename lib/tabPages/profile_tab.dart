@@ -1,11 +1,15 @@
-import 'package:boride_driver/authentication/driver_registation.dart';
-import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/bank_info.dart';
+import 'package:boride_driver/mainScreens/help_support_screen.dart';
+import 'package:boride_driver/widgets/brand_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../infoHandler/app_info.dart';
 
@@ -17,20 +21,46 @@ class ProfileTabPage extends StatefulWidget {
 }
 
 class _ProfileTabPageState extends State<ProfileTabPage> {
+  DatabaseReference ratingsRef = FirebaseDatabase.instance
+      .ref()
+      .child('drivers')
+      .child(fAuth.currentUser!.uid)
+      .child("ratings");
 
-  DatabaseReference ratingsRef = FirebaseDatabase.instance.ref().child('drivers').child(fAuth.currentUser!.uid).child("ratings");
-  String ratings = "";
+  String name = "";
+  String email = "";
+  String phone = "";
+  String vNumber = "";
+  String vColor = "";
+  String vModel = "";
+  String vBrand = "";
+  String? ratings;
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchData();
+  }
+
+  fetchData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      name = prefs.getString('my_name') ?? onlineDriverData.name!;
+      email = prefs.getString('my_email') ?? onlineDriverData.email!;
+      phone = prefs.getString('my_phone') ?? onlineDriverData.phone!;
+      vNumber = prefs.getString('v_number') ?? onlineDriverData.car_number!;
+      vBrand = prefs.getString('v_brand') ?? onlineDriverData.car_brand!;
+      vColor = prefs.getString('v_color') ?? onlineDriverData.car_color!;
+      vModel = prefs.getString('v_model') ?? onlineDriverData.car_model!;
+      ratings =
+          onlineDriverData.ratings.toString() ?? prefs.getString('my_ratings');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    ratingsRef.once().then((snapshot)  {
-      if(snapshot.snapshot.value !=null) {
-        setState(() {
-          ratings = snapshot.snapshot.value.toString();
-        });
-      }
-    });
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -56,7 +86,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     child: Container(
                       margin: const EdgeInsets.only(top: 15),
                       child: Stack(
-                        children:  const [
+                        children: const [
                           CircleAvatar(
                             radius: 50,
                             backgroundImage: AssetImage(
@@ -68,25 +98,30 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     ),
                   ),
                   Column(children: [
-                    Text(onlineDriverData.name ?? "Getting name...",
+                    Text(onlineDriverData.name!,
                         style: const TextStyle(
-                            fontSize: 24,
-                            fontFamily: "Brand-Bold",
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                      margin: const EdgeInsets.only(top: 5),
-                      child: Text(onlineDriverData.email ?? "Getting info...",
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Brand-Regular",
-                              fontWeight: FontWeight.w400)),
+                            fontSize: 28,
+                            fontFamily: "Brand-regular",)),
+                    Text(
+                      " ${onlineDriverData.car_color} $vBrand ${onlineDriverData.car_model}, ${onlineDriverData.car_number}",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Brand-regular",
+                          color: BrandColors.colorTextT),
+                    ),
+                    SizedBox(height: 5,),
+                    const Text(
+                      "Good Driver",
+                      style: TextStyle(
+                          fontSize: 25,
+                          fontFamily: "Brand-Bold",
+                          color: Colors.green),
                     ),
                   ]),
+
+
                   SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.02,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -94,8 +129,8 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                       Column(
                         children: [
                           Container(
-                            height: 60,
-                            width: 60,
+                            height: 55,
+                            width: 55,
                             decoration: BoxDecoration(
                                 color: Colors.indigo.shade900,
                                 borderRadius: BorderRadius.circular(50)),
@@ -104,10 +139,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    ratings,
+                                    ratings!,
                                     style: const TextStyle(
                                       fontFamily: "Brand-Regular",
-                                      fontSize: 25,
+                                      fontSize: 20,
                                       // fontWeight: FontWeight.w300,
                                       color: Colors.white,
                                     ),
@@ -126,29 +161,26 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         ],
                       ),
                       SizedBox(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .height * 0.02,
+                        width: MediaQuery.of(context).size.height * 0.02,
                       ),
                       Column(
                         children: [
                           Container(
-                            height: 60,
+                            height: 55,
                             width: 130,
                             decoration: BoxDecoration(
                                 color: Colors.indigo.shade900,
                                 borderRadius: BorderRadius.circular(50)),
                             child: const Center(
                                 child: Text(
-                                  "Oct, 22",
-                                  style: TextStyle(
-                                    fontFamily: "Brand-Regular",
-                                    fontSize: 25,
-                                    // fontWeight: FontWeight.w300,
-                                    color: Colors.white,
-                                  ),
-                                )),
+                              "Oct, 22",
+                              style: TextStyle(
+                                fontFamily: "Brand-Regular",
+                                fontSize: 20,
+                                // fontWeight: FontWeight.w300,
+                                color: Colors.white,
+                              ),
+                            )),
                           ),
                           const SizedBox(
                             height: 5,
@@ -160,29 +192,25 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         ],
                       ),
                       SizedBox(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .height * 0.02,
+                        width: MediaQuery.of(context).size.height * 0.02,
                       ),
                       Column(
                         children: [
                           Container(
-                            height: 60,
-                            width: 60,
+                            height: 55,
+                            width: 55,
                             decoration: BoxDecoration(
                                 color: Colors.indigo.shade900,
                                 borderRadius: BorderRadius.circular(50)),
                             child: Center(
                               child: Text(
-                                Provider
-                                    .of<AppInfo>(context, listen: false)
+                                Provider.of<AppInfo>(context, listen: false)
                                     .allTripsHistoryInformationList
                                     .length
                                     .toString(),
                                 style: const TextStyle(
                                   fontFamily: "Brand-Regular",
-                                  fontSize: 25,
+                                  fontSize: 20,
                                   // fontWeight: FontWeight.w300,
                                   color: Colors.white,
                                 ),
@@ -212,63 +240,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     ),
                   ),
                   SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.02,
-                  ),
-                  Container(
-
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.indigo.shade900,
-                        borderRadius: BorderRadius.circular(20)),
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.15,
-                    width: 370,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              "Vehicle Model:    ${onlineDriverData.car_model ??
-                                  "getting ...."}",
-                              style: const TextStyle(color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: "Brand-Regular"),
-                            )),
-                        Container(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              "Vehicle Color:   ${onlineDriverData.car_color ??
-                                  "getting ...."}",
-                              style: const TextStyle(color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: "Brand-Regular"),
-                            )),
-                        Container(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              "Vehicle Number:   ${onlineDriverData
-                                  .car_number ?? "getting ...."} ",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16, fontFamily: "Brand-Regular"
-                              ),
-                            )),
-
-                      ],
-                    ),
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.02,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   // SizedBox(height: MediaQuery.of(context).size.height * 0.07,),
 
@@ -278,9 +253,40 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     decoration: BoxDecoration(
                         color: const Color.fromARGB(100, 225, 226, 233),
                         borderRadius: BorderRadius.circular(20)),
-                    height: 300,
                     child: Column(
                       children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Fluttertoast.showToast(msg: "Coming soon");
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.credit_card),
+                                SizedBox(width: 40),
+                                Expanded(
+                                  child: Text(
+                                    'Campaign',
+                                    style: TextStyle(
+                                      fontFamily: "Brand-Regular",
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios_outlined)
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -304,7 +310,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                 SizedBox(width: 40),
                                 Expanded(
                                   child: Text(
-                                    'Add bank details',
+                                    'Bank details',
                                     style: TextStyle(
                                       fontFamily: "Brand-Regular",
                                       fontWeight: FontWeight.w500,
@@ -319,57 +325,69 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.help_outline),
-                              SizedBox(width: 40),
-                              Expanded(
-                                child: Text(
-                                  'Help & Support',
-                                  style: TextStyle(
-                                    fontFamily: "Brand-Regular",
-                                    fontWeight: FontWeight.w500,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Support()));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.help_outline),
+                                SizedBox(width: 40),
+                                Expanded(
+                                  child: Text(
+                                    'Help & Support',
+                                    style: TextStyle(
+                                      fontFamily: "Brand-Regular",
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-
-                              Icon(Icons.arrow_forward_ios_outlined)
-                            ],
+                                Icon(Icons.arrow_forward_ios_outlined)
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.person_add),
-                              SizedBox(width: 40),
-                              Expanded(
-                                child: Text(
-                                  'Invite Friends',
-                                  style: TextStyle(
-                                    fontFamily: "Brand-Regular",
-                                    fontWeight: FontWeight.w500,
+                        GestureDetector(
+                          onTap: () {
+                            Share.share(
+                                'https://boride.page.link/driver/${fAuth.currentUser!.uid}');
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.person_add),
+                                SizedBox(width: 40),
+                                Expanded(
+                                  child: Text(
+                                    'Invite Friends',
+                                    style: TextStyle(
+                                      fontFamily: "Brand-Regular",
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-
-                              Icon(Icons.arrow_forward_ios_outlined)
-                            ],
+                                Icon(Icons.arrow_forward_ios_outlined)
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(
@@ -377,11 +395,11 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            await FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const LoginScreen()));
+                            await FirebaseAuth.instance
+                                .signOut()
+                                .whenComplete(() {
+                              Phoenix.rebirth(context);
+                            });
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -414,10 +432,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 ],
               ),
               SizedBox(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.01,
+                height: MediaQuery.of(context).size.height * 0.01,
               ),
             ],
           ),

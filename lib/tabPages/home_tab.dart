@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:boride_driver/assistants/assistant_methods.dart';
-import 'package:boride_driver/brand_colors.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/push_notifications/push_notification_system.dart';
-import 'package:boride_driver/testui.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({Key? key}) : super(key: key);
@@ -68,21 +68,34 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .child("drivers")
         .child(currentFirebaseUser!.uid)
         .once()
-        .then((DatabaseEvent snap) {
+        .then((DatabaseEvent snap) async {
       if (snap.snapshot.value != null) {
         onlineDriverData.id = (snap.snapshot.value as Map)["id"];
         onlineDriverData.name = (snap.snapshot.value as Map)["name"];
         onlineDriverData.phone = (snap.snapshot.value as Map)["phone"];
         onlineDriverData.email = (snap.snapshot.value as Map)["email"];
         onlineDriverData.earnings = (snap.snapshot.value as Map)["earnings"];
+        onlineDriverData.ratings = (snap.snapshot.value as Map)["ratings"];
         onlineDriverData.car_color =
             (snap.snapshot.value as Map)["car_details"]["car_color"];
         onlineDriverData.car_model =
             (snap.snapshot.value as Map)["car_details"]["car_model"];
+        onlineDriverData.car_brand =
+            (snap.snapshot.value as Map)["car_details"]["car_brand"];
         onlineDriverData.car_number =
             (snap.snapshot.value as Map)["car_details"]["car_number"];
 
         driverVehicleType = (snap.snapshot.value as Map)["car_details"]["type"];
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('my_name', onlineDriverData.name!) ;
+        prefs.setString('my_email', onlineDriverData.email!);
+        prefs.setString('my_phone', onlineDriverData.phone!) ;
+        prefs.setString('v_number', onlineDriverData.car_number!);
+        prefs.setString('v_color', onlineDriverData.car_color!);
+        prefs.setString('v_model', onlineDriverData.car_model!) ;
+        prefs.setString('v_brand', onlineDriverData.car_brand!) ;
+        prefs.setString('my_ratings', onlineDriverData.ratings!);
       }
     });
 
@@ -94,7 +107,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
   @override
   void initState() {
     super.initState();
-
     checkIfLocationPermissionAllowed();
     readCurrentDriverInformation();
   }
@@ -119,6 +131,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
         ),
 
         //ui for online offline driver
+
         statusText != "Now Online"
             ? Container(
                 height: MediaQuery.of(context).size.height,
@@ -133,8 +146,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
           bottom: 10,
           child: GestureDetector(
             onTap: () {
-               locateDriverPosition();
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => TestUi()));
+              Phoenix.rebirth(context);
+              // locateDriverPosition();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -172,31 +185,29 @@ class _HomeTabPageState extends State<HomeTabPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (isDriverActive != true) //offline
                   {
-                    driverIsOnlineNow();
-                    updateDriversLocationAtRealTime();
-
                     setState(() {
                       statusText = "Now Online";
                       isDriverActive = true;
                       buttonColor = Colors.transparent;
                     });
+                    driverIsOnlineNow();
+                    updateDriversLocationAtRealTime();
                   } else //online
                   {
-                    driverIsOfflineNow();
-
                     setState(() {
                       statusText = "Now Offline";
                       isDriverActive = false;
                       buttonColor = Colors.grey;
                     });
+                    driverIsOfflineNow();
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: statusText != "Now Online"
-                      ? Color.fromARGB(255, 241, 42, 28)
+                      ? const Color.fromARGB(255, 241, 42, 28)
                       : Colors.indigo,
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   shape: RoundedRectangleBorder(
@@ -266,6 +277,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOfflineNow() {
+    streamSubscriptionPosition!.pause();
+    streamSubscriptionPosition!.cancel();
+    Geofire.stopListener();
     Geofire.removeLocation(currentFirebaseUser!.uid);
 
     DatabaseReference? ref = FirebaseDatabase.instance

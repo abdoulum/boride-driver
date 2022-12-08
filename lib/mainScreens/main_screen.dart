@@ -1,5 +1,5 @@
 import 'package:boride_driver/assistants/assistant_methods.dart';
-import 'package:boride_driver/brand_colors.dart';
+import 'package:boride_driver/widgets/brand_colors.dart';
 import 'package:boride_driver/tabPages/earning_tab.dart';
 import 'package:boride_driver/tabPages/home_tab.dart';
 import 'package:boride_driver/tabPages/profile_tab.dart';
@@ -29,13 +29,17 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+    initialization();
+    tabController = TabController(length: 3, vsync: this);
+  }
+
+  initialization() {
+    AssistantMethods.getBankData(context);
     AssistantMethods.readDriverTotalEarnings(context);
     AssistantMethods.readDriverWeeklyEarnings(context);
     AssistantMethods.readDriverRating(context);
     AssistantMethods.readTripsKeysForOnlineDriver(context);
-    tabController = TabController(length: 3, vsync: this);
   }
-
 
 
   @override

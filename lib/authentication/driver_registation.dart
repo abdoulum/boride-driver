@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewDriver extends StatefulWidget {
   const NewDriver({Key? key}) : super(key: key);
@@ -22,6 +27,7 @@ class _NewDriverState extends State<NewDriver> {
   TextEditingController colorController = TextEditingController();
   TextEditingController brandController = TextEditingController();
   TextEditingController yearController = TextEditingController();
+  TextEditingController rideTypeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
   TextEditingController lPlateController = TextEditingController();
   TextEditingController dLicenseController = TextEditingController();
@@ -32,6 +38,59 @@ class _NewDriverState extends State<NewDriver> {
   String selectedbrand = "";
   String selectedyear = "";
   String selectedState = "";
+  String selectedRideType = "";
+
+  bool isDriverPhotoU = false;
+  bool isDriverLicenceU = false;
+  bool isDriverVInteriorU = false;
+  bool isDriverVExteriorU = false;
+
+  PlatformFile? pickedFile;
+  UploadTask? uploadTask;
+
+  Future selectFile(String uploadT) async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result == null) return;
+    setState(() {
+      pickedFile = result.files.first;
+    });
+    uploadFile(uploadT);
+  }
+
+  Future uploadFile(String uploadT) async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => ProgressDialog(
+        message: "Uploading file",
+      ),
+    );
+    final path = 'files/drivers/${pickedFile!.name}';
+    final file = File(pickedFile!.path!);
+
+    final ref = FirebaseStorage.instance.ref().child(path);
+    ref.putFile(file).whenComplete(() {
+      if (uploadT == "driverLicense") {
+        setState(() {
+          isDriverLicenceU = true;
+        });
+      } else if (uploadT == "driverPhoto") {
+        setState(() {
+          isDriverPhotoU = true;
+        });
+      } else if (uploadT == "interior") {
+        setState(() {
+          isDriverVInteriorU = true;
+        });
+      } else if (uploadT == "exterior") {
+        setState(() {
+          isDriverVExteriorU = true;
+        });
+      }
+      Navigator.pop(context);
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -478,6 +537,62 @@ class _NewDriverState extends State<NewDriver> {
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    GestureDetector(
+                      onTap: _openRideTypeSheet,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Ride type",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Brand-Regular")),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Text(
+                              "select the type of ride service you wish to offer.",
+                              style: TextStyle(
+                                  fontSize: 14, fontFamily: "Brand-Regular")),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 243, 245, 247),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                  width: 25.0,
+                                ),
+                                Text(
+                                  selectedRideType.isNotEmpty
+                                      ? selectedRideType
+                                      : "type",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: "Brand-Regular",
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 6.0,
+                                ),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Colors.black54,
+                                  size: 16.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(
@@ -590,27 +705,38 @@ class _NewDriverState extends State<NewDriver> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          height: 45,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 243, 245, 247),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: TextFormField(
-                                textCapitalization:
-                                    TextCapitalization.characters,
-                                decoration: const InputDecoration(
-                                  hintText: "Upload  + ",
-                                  // prefixIcon: Icon(Icons.person),
-                                  border: InputBorder.none,
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                selectFile("driverLicense");
+                              },
+                              child: Container(
+                                height: 45,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        255, 243, 245, 247),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Text("Upload  + ")),
                                 ),
                               ),
                             ),
-                          ),
+                            const Spacer(),
+                            Container(
+                              height: 10,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                  color: isDriverLicenceU
+                                      ? Colors.green
+                                      : Colors.red,
+                                  borderRadius: BorderRadius.circular(20)),
+                            )
+                          ],
                         ),
                         const SizedBox(
                           height: 10,
@@ -643,27 +769,38 @@ class _NewDriverState extends State<NewDriver> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          height: 45,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 243, 245, 247),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: TextFormField(
-                                textCapitalization:
-                                    TextCapitalization.characters,
-                                decoration: const InputDecoration(
-                                  hintText: "Upload  + ",
-                                  // prefixIcon: Icon(Icons.person),
-                                  border: InputBorder.none,
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                selectFile("driverPhoto");
+                              },
+                              child: Container(
+                                height: 45,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        255, 243, 245, 247),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 15),
+                                      child: Text("Upload  + ")),
                                 ),
                               ),
                             ),
-                          ),
+                            const Spacer(),
+                            Container(
+                              height: 10,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                  color: isDriverPhotoU
+                                      ? Colors.green
+                                      : Colors.red,
+                                  borderRadius: BorderRadius.circular(20)),
+                            )
+                          ],
                         ),
                         const SizedBox(
                           height: 10,
@@ -696,27 +833,38 @@ class _NewDriverState extends State<NewDriver> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          height: 45,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 243, 245, 247),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: TextFormField(
-                                textCapitalization:
-                                    TextCapitalization.characters,
-                                decoration: const InputDecoration(
-                                  hintText: "Upload  + ",
-                                  // prefixIcon: Icon(Icons.person),
-                                  border: InputBorder.none,
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                selectFile("exterior");
+                              },
+                              child: Container(
+                                height: 45,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        255, 243, 245, 247),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Text("Upload  + ")),
                                 ),
                               ),
                             ),
-                          ),
+                            const Spacer(),
+                            Container(
+                              height: 10,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                  color: isDriverVExteriorU
+                                      ? Colors.green
+                                      : Colors.red,
+                                  borderRadius: BorderRadius.circular(20)),
+                            )
+                          ],
                         ),
                         const SizedBox(
                           height: 10,
@@ -749,27 +897,38 @@ class _NewDriverState extends State<NewDriver> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          height: 45,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 243, 245, 247),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: TextFormField(
-                                textCapitalization:
-                                    TextCapitalization.characters,
-                                decoration: const InputDecoration(
-                                  hintText: "Upload  + ",
-                                  // prefixIcon: Icon(Icons.person),
-                                  border: InputBorder.none,
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                selectFile("interior");
+                              },
+                              child: Container(
+                                height: 45,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        255, 243, 245, 247),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Text("Upload  + ")),
                                 ),
                               ),
                             ),
-                          ),
+                            const Spacer(),
+                            Container(
+                              height: 10,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                  color: isDriverVInteriorU
+                                      ? Colors.green
+                                      : Colors.red,
+                                  borderRadius: BorderRadius.circular(20)),
+                            )
+                          ],
                         ),
                       ],
                     ),
@@ -1095,6 +1254,50 @@ class _NewDriverState extends State<NewDriver> {
     Navigator.pop(context);
   }
 
+  void _openRideTypeSheet() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return _getRideType();
+        });
+  }
+
+  Widget _getRideType() {
+    final rideType = ['boride-go', 'boride-corporate'];
+    return Container(
+      height: 180,
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      color: Colors.white,
+      child: ListView(
+        children: rideType
+            .map((rideType) => ListTile(
+                  onTap: () => {_handleRideTypeTap(rideType)},
+                  title: Column(
+                    children: [
+                      Text(
+                        rideType,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                            color: Colors.black, fontFamily: "Brand-Regular"),
+                      ),
+                      const SizedBox(height: 4),
+                      const Divider(height: 1)
+                    ],
+                  ),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  _handleRideTypeTap(String rideType) {
+    setState(() {
+      selectedRideType = rideType;
+      rideTypeController.text = rideType;
+    });
+    Navigator.pop(context);
+  }
+
   verifyFields() {
     if (fullNameController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter your name");
@@ -1116,6 +1319,14 @@ class _NewDriverState extends State<NewDriver> {
       Fluttertoast.showToast(msg: "Please enter plate number");
     } else if (dLicenseController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter License number");
+    } else if (isDriverLicenceU == false) {
+      Fluttertoast.showToast(msg: "Please upload License");
+    } else if (isDriverPhotoU == false) {
+      Fluttertoast.showToast(msg: "Please upload your photo");
+    } else if (isDriverVExteriorU == false) {
+      Fluttertoast.showToast(msg: "Please upload vehicle exterior photo");
+    } else if (isDriverVInteriorU == false) {
+      Fluttertoast.showToast(msg: "Please upload vehicle interior photo");
     } else if (passwordController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter password1");
     } else if (password2Controller.text.isEmpty) {
@@ -1155,7 +1366,7 @@ class _NewDriverState extends State<NewDriver> {
     }
   }
 
-  _uploadDocument() {
+  _uploadDocument() async {
     DatabaseReference driversRef =
         FirebaseDatabase.instance.ref().child("drivers");
 
@@ -1165,26 +1376,29 @@ class _NewDriverState extends State<NewDriver> {
       "email": emailController.text.trim(),
       "phone": phoneController.text.trim(),
     };
-    driversRef.child(fAuth.currentUser!.uid).set(driverMap);
-
     Map driverCarInfoMap = {
       "car_color": colorController.text.trim(),
       "car_number": lPlateController.text.trim(),
+      "car_brand": brandController.text.trim(),
       "car_model": modelController.text.trim(),
-      "type": "boride-go",
+      "type": selectedRideType,
     };
+    driversRef.child(fAuth.currentUser!.uid).set(driverMap).whenComplete(() {
+      driversRef
+          .child(fAuth.currentUser!.uid)
+          .child("car_details")
+          .set(driverCarInfoMap);
+    });
 
-    driversRef
-        .child(fAuth.currentUser!.uid)
-        .child("car_details")
-        .set(driverCarInfoMap);
-
+    ///TO-DO
     Map newUserMap = {
+      "id": fAuth.currentUser!.uid,
       "name": fullNameController.text.toString(),
       "email": emailController.text.trim(),
       "phone": phoneController.text.trim(),
       "state": stateController.text.trim(),
-      "type": "Boride-Go",
+      "joined": "OCT, 21",
+      "type": selectedRideType,
       "car_color": colorController.text.trim(),
       "car_brand": brandController.text.trim(),
       "car_year": yearController.text.trim(),
@@ -1192,9 +1406,27 @@ class _NewDriverState extends State<NewDriver> {
       "car_number": lPlateController.text.trim(),
       "driver_license_number": dLicenseController.text.trim(),
     };
-    DatabaseReference newDriverRef =
-        FirebaseDatabase.instance.ref().child("Driver Signup Request");
-    newDriverRef.child(fAuth.currentUser!.uid).set(newUserMap);
+    FirebaseDatabase.instance
+        .ref()
+        .child("Driver Signup Request")
+        .child(fAuth.currentUser!.uid)
+        .set(newUserMap);
+
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('my_name', fullNameController.text.trim());
+    prefs.setString(
+      'my_email',
+      emailController.text.trim(),
+    );
+    prefs.setString('my_phone', phoneController.text.trim());
+    prefs.setString('v_number', lPlateController.text.trim());
+    prefs.setString(
+      'v_color',
+      colorController.text.trim(),
+    );
+    prefs.setString('v_model', modelController.text.trim());
+
     AssistantMethods.readDriverTotalEarnings(context);
     AssistantMethods.readDriverWeeklyEarnings(context);
     AssistantMethods.readDriverRating(context);
