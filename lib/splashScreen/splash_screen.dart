@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:boride_driver/authentication/doc_upload.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
 import 'package:boride_driver/splashScreen/retry_screen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class MySplashScreen extends StatefulWidget {
@@ -16,14 +19,19 @@ class MySplashScreen extends StatefulWidget {
 
 class _MySplashScreenState extends State<MySplashScreen> {
   bool hasInternet = false;
+  bool hasCompletedRegistration = false;
 
-  startTimer() {
+  startTimer() async {
     Timer(const Duration(seconds: 3), () async {
-      checkInternetAccess();
-
       if (fAuth.currentUser != null) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (c) => const MainScreen()));
+        await checkRegistrationStatus();
+        if (hasCompletedRegistration) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (c) => const MainScreen()));
+        } else {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (c) => const Upload()));
+        }
       } else {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (c) => const LoginScreen()));
@@ -63,5 +71,21 @@ class _MySplashScreenState extends State<MySplashScreen> {
         ),
       ),
     );
+  }
+
+  checkRegistrationStatus() async {
+    await FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("driver_photo")
+        .once()
+        .then((value) {
+      if (value.snapshot.value != null) {
+        setState(() {
+          hasCompletedRegistration = true;
+        });
+      }
+    });
   }
 }

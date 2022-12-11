@@ -1,7 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 
 class BankInfoModel {
-
   String? accountName;
   String? accountNumber;
   String? bankName;
@@ -17,5 +16,4 @@ class BankInfoModel {
     accountName = (snapshot.value as dynamic)["account_name"];
     bankName = (snapshot.value as dynamic)["bank_name"];
   }
-
 }

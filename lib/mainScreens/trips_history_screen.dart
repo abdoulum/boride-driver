@@ -22,62 +22,75 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
       appBar: AppBar(
         shadowColor: Colors.transparent,
         backgroundColor: Colors.white,
-        title: const Text("Trips History", style: TextStyle(color: Colors.black, fontFamily: 'Brand-Regular'),),
+        title: const Text(
+          "Trips History",
+          style: TextStyle(color: Colors.black, fontFamily: 'Brand-Regular'),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black,),
+          icon: const Icon(
+            Icons.close,
+            color: Colors.black,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      body:
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: 150,
-                  color:Colors.white,
-                  padding: const EdgeInsets.all(30),
-                  margin: const EdgeInsets.only(top: 10),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        const Text("Total earnings: ", style: TextStyle(fontFamily: "Brand-Regular", fontSize: 16, fontWeight: FontWeight.bold),),
-                        Text( "\$ ${tEarnings.toStringAsFixed(0)}", style: const TextStyle(fontFamily: "Brand-Bold", fontSize: 40),),
-                      ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 150,
+              color: Colors.white,
+              padding: const EdgeInsets.all(30),
+              margin: const EdgeInsets.only(top: 10),
+              child: Center(
+                child: Column(
+                  children: [
+                    const Text(
+                      "Total earnings: ",
+                      style: TextStyle(
+                          fontFamily: "Brand-Regular",
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
                     ),
-                  ),
+                    Text(
+                      "\$ ${tEarnings.toStringAsFixed(0)}",
+                      style: const TextStyle(
+                          fontFamily: "Brand-Bold", fontSize: 40),
+                    ),
+                  ],
                 ),
-                ListView.separated(
-                  separatorBuilder: (context, i) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: const Divider(
-                      thickness: 0.2,
-                      height: 1,
-                      color: Colors.black,
-
-                    ),
-                  ),
-                  itemBuilder: (context, i) {
-                    return Card(
-                      color: Colors.white54,
-                      child: HistoryDesignUIWidget(
-                        tripsHistoryModel:
+              ),
+            ),
+            ListView.separated(
+              separatorBuilder: (context, i) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: const Divider(
+                  thickness: 0.2,
+                  height: 1,
+                  color: Colors.black,
+                ),
+              ),
+              itemBuilder: (context, i) {
+                return Card(
+                  color: Colors.white54,
+                  child: HistoryDesignUIWidget(
+                    tripsHistoryModel:
                         Provider.of<AppInfo>(context, listen: false)
                             .allTripsHistoryInformationList[i],
-                      ),
-                    );
-                  },
-                  itemCount: Provider.of<AppInfo>(context, listen: false)
-                      .allTripsHistoryInformationList
-                      .length,
-                  physics: const ClampingScrollPhysics(),
-                  shrinkWrap: true,
-                ),
-              ],
+                  ),
+                );
+              },
+              itemCount: Provider.of<AppInfo>(context, listen: false)
+                  .allTripsHistoryInformationList
+                  .length,
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
             ),
-          ),
-
+          ],
+        ),
+      ),
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:boride_driver/push_notifications/push_notification_system.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
@@ -35,13 +34,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
 
-  checkIfLocationPermissionAllowed() async {
-    _locationPermission = await Geolocator.requestPermission();
-
-    if (_locationPermission == LocationPermission.denied) {
-      _locationPermission = await Geolocator.requestPermission();
-    }
-  }
+  PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
 
   locateDriverPosition() async {
     Position cPosition = await Geolocator.getCurrentPosition(
@@ -76,6 +69,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
         onlineDriverData.email = (snap.snapshot.value as Map)["email"];
         onlineDriverData.earnings = (snap.snapshot.value as Map)["earnings"];
         onlineDriverData.ratings = (snap.snapshot.value as Map)["ratings"];
+        onlineDriverData.photoUrl =
+            (snap.snapshot.value as Map)["driver_photo"];
         onlineDriverData.car_color =
             (snap.snapshot.value as Map)["car_details"]["car_color"];
         onlineDriverData.car_model =
@@ -88,18 +83,17 @@ class _HomeTabPageState extends State<HomeTabPage> {
         driverVehicleType = (snap.snapshot.value as Map)["car_details"]["type"];
 
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('my_name', onlineDriverData.name!) ;
+        prefs.setString('my_name', onlineDriverData.name!);
         prefs.setString('my_email', onlineDriverData.email!);
-        prefs.setString('my_phone', onlineDriverData.phone!) ;
+        prefs.setString('my_phone', onlineDriverData.phone!);
         prefs.setString('v_number', onlineDriverData.car_number!);
         prefs.setString('v_color', onlineDriverData.car_color!);
-        prefs.setString('v_model', onlineDriverData.car_model!) ;
-        prefs.setString('v_brand', onlineDriverData.car_brand!) ;
+        prefs.setString('v_model', onlineDriverData.car_model!);
+        prefs.setString('v_brand', onlineDriverData.car_brand!);
         prefs.setString('my_ratings', onlineDriverData.ratings!);
       }
     });
 
-    PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
     pushNotificationSystem.initialize(context);
     pushNotificationSystem.generateAndGetToken();
   }
@@ -107,7 +101,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
   @override
   void initState() {
     super.initState();
-    checkIfLocationPermissionAllowed();
+    checkState();
     readCurrentDriverInformation();
   }
 
@@ -146,8 +140,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
           bottom: 10,
           child: GestureDetector(
             onTap: () {
-              Phoenix.rebirth(context);
-              // locateDriverPosition();
+              locateDriverPosition();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -237,6 +230,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOnlineNow() async {
+    pushNotificationSystem.generateAndGetToken();
+
     Position pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -276,7 +271,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     });
   }
 
-  driverIsOfflineNow() {
+  driverIsOfflineNow() async {
     streamSubscriptionPosition!.pause();
     streamSubscriptionPosition!.cancel();
     Geofire.stopListener();
@@ -290,5 +285,23 @@ class _HomeTabPageState extends State<HomeTabPage> {
     ref.onDisconnect();
     ref.remove();
     ref = null;
+  }
+
+  checkState() async {
+    if (isDriverActive) {
+      setState(() {
+        statusText = "Now Online";
+        isDriverActive = true;
+        buttonColor = Colors.transparent;
+      });
+      driverIsOnlineNow();
+    } else {
+      setState(() {
+        statusText = "Now Offline";
+        isDriverActive = false;
+        buttonColor = Colors.grey;
+      });
+      driverIsOfflineNow();
+    }
   }
 }

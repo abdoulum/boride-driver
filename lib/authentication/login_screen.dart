@@ -19,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
+  bool hasCompletedRegistration = false;
 
   validateForm() {
     if (!emailTextEditingController.text.contains("@")) {
@@ -44,18 +45,19 @@ class _LoginScreenState extends State<LoginScreen> {
             .signInWithEmailAndPassword(
       email: emailTextEditingController.text.trim(),
       password: passwordTextEditingController.text.trim(),
-    ).whenComplete(() {
+    )
+            .whenComplete(() {
       AssistantMethods.readDriverTotalEarnings(context);
       AssistantMethods.readDriverWeeklyEarnings(context);
       AssistantMethods.readDriverRating(context);
-    })
-            .catchError((msg) {
+    }).catchError((msg) {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Error: " + msg.toString());
     }))
         .user;
 
     if (firebaseUser != null) {
+      checkRegistrationStatus();
       DatabaseReference driversRef =
           FirebaseDatabase.instance.ref().child("drivers");
       driversRef.child(firebaseUser.uid).once().then((driverKey) {
@@ -183,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.text,
                             obscureText: true,
                             decoration: const InputDecoration(
-                              hintText: "********",
                               prefixStyle: TextStyle(color: Colors.black),
                               // prefixIcon: Icon(Icons.person),
                               border: InputBorder.none,
@@ -230,13 +231,31 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text("Register as a driver",
                         style: TextStyle(
-                          color: Colors.black,
-                            fontFamily: "Brand-Regular", fontSize: 18))),
+                            color: Colors.black,
+                            fontFamily: "Brand-Regular",
+                            fontSize: 18))),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  checkRegistrationStatus() {
+    FirebaseDatabase.instance
+        .ref()
+        .child("users")
+        .child(fAuth.currentUser!.uid)
+        .child("profile_photo")
+        .once()
+        .then((value) {
+      if (value.snapshot.value != null) {
+        Fluttertoast.showToast(msg: "Registration not complete");
+        setState(() {
+          hasCompletedRegistration == true;
+        });
+      }
+    });
   }
 }

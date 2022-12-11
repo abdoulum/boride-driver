@@ -4,7 +4,6 @@ import 'package:boride_driver/mainScreens/new_trip_screen.dart';
 import 'package:boride_driver/models/user_ride_request_information.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class NotificationDialogBox extends StatefulWidget {
@@ -141,7 +140,12 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
                       backgroundColor: Colors.red,
                     ),
                     onPressed: () {
-                      FirebaseDatabase.instance.ref().child("drivers").child(fAuth.currentUser!.uid).child("newRide").set("cancelled");
+                      FirebaseDatabase.instance
+                          .ref()
+                          .child("drivers")
+                          .child(fAuth.currentUser!.uid)
+                          .child("newRide")
+                          .set("cancelled");
                       Future.delayed(const Duration(milliseconds: 1000), () {
                         Navigator.pop(context);
                       });
@@ -193,7 +197,6 @@ class _NotificationDialogBoxState extends State<NotificationDialogBox> {
       if (snap.snapshot.value != null) {
         setState(() {
           getRideRequestId = snap.snapshot.value.toString();
-
         });
       } else {
         Fluttertoast.showToast(msg: "Ride not available");

@@ -1,5 +1,5 @@
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class WebPage extends StatelessWidget {
   const WebPage({Key? key}) : super(key: key);
@@ -8,13 +8,15 @@ class WebPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("WebView", style: TextStyle(color: Colors.white),),
+        title: const Text(
+          "WebView",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
       body: const WebView(
         initialUrl: "www.boride.app",
       ),
-
     );
   }
 }

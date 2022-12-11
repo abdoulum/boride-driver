@@ -75,8 +75,11 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                   width: 10,
                 ),
                 Expanded(
-                  child: Text(widget.tripsHistoryModel!.originAddress!.length > 32 ?
-                    widget.tripsHistoryModel!.originAddress!.substring(0, 32) : widget.tripsHistoryModel!.originAddress!,
+                  child: Text(
+                    widget.tripsHistoryModel!.originAddress!.length > 32
+                        ? widget.tripsHistoryModel!.originAddress!
+                            .substring(0, 32)
+                        : widget.tripsHistoryModel!.originAddress!,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
@@ -101,8 +104,10 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.tripsHistoryModel!.destinationAddress!.length > 32 ?
-                    widget.tripsHistoryModel!.destinationAddress!.substring(0, 32) : widget.tripsHistoryModel!.destinationAddress!,
+                    widget.tripsHistoryModel!.destinationAddress!.length > 32
+                        ? widget.tripsHistoryModel!.destinationAddress!
+                            .substring(0, 32)
+                        : widget.tripsHistoryModel!.destinationAddress!,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontFamily: "Brand-Regular",
@@ -112,7 +117,6 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 ),
               ],
             ),
-
           ],
         ),
       ),

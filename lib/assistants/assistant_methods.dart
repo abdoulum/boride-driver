@@ -264,15 +264,11 @@ class AssistantMethods {
       var dTotalFare;
       dTotalFare = totalFare - ((discountP / 100) * totalFare);
       return (((dTotalFare - 0) ~/ 100) * 100).toInt();
-    }
-
-    else if (driverVehicleType == "boride-corporate") {
+    } else if (driverVehicleType == "boride-corporate") {
       var nTotalFare = totalFare + 300;
       var dTotalFare = nTotalFare - ((discountP / 100) * totalFare);
       return (((dTotalFare - 0) ~/ 100) * 100).toInt();
-    }
-
-    else {
+    } else {
       return totalFare.truncate();
     }
   }

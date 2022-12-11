@@ -1,13 +1,10 @@
-import 'dart:io';
-
-import 'package:boride_driver/assistants/assistant_methods.dart';
+import 'package:boride_driver/authentication/doc_upload.dart';
+import 'package:boride_driver/authentication/email_verify.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/widgets/progress_dialog.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,62 +32,10 @@ class _NewDriverState extends State<NewDriver> {
   TextEditingController password2Controller = TextEditingController();
 
   String selectedColor = "";
-  String selectedbrand = "";
-  String selectedyear = "";
+  String selectedBrand = "";
+  String selectedYear = "";
   String selectedState = "";
   String selectedRideType = "";
-
-  bool isDriverPhotoU = false;
-  bool isDriverLicenceU = false;
-  bool isDriverVInteriorU = false;
-  bool isDriverVExteriorU = false;
-
-  PlatformFile? pickedFile;
-  UploadTask? uploadTask;
-
-  Future selectFile(String uploadT) async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result == null) return;
-    setState(() {
-      pickedFile = result.files.first;
-    });
-    uploadFile(uploadT);
-  }
-
-  Future uploadFile(String uploadT) async {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) => ProgressDialog(
-        message: "Uploading file",
-      ),
-    );
-    final path = 'files/drivers/${pickedFile!.name}';
-    final file = File(pickedFile!.path!);
-
-    final ref = FirebaseStorage.instance.ref().child(path);
-    ref.putFile(file).whenComplete(() {
-      if (uploadT == "driverLicense") {
-        setState(() {
-          isDriverLicenceU = true;
-        });
-      } else if (uploadT == "driverPhoto") {
-        setState(() {
-          isDriverPhotoU = true;
-        });
-      } else if (uploadT == "interior") {
-        setState(() {
-          isDriverVInteriorU = true;
-        });
-      } else if (uploadT == "exterior") {
-        setState(() {
-          isDriverVExteriorU = true;
-        });
-      }
-      Navigator.pop(context);
-
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +86,7 @@ class _NewDriverState extends State<NewDriver> {
                               fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
                         Container(
                           //     margin: EdgeInsets.all(12),
@@ -170,7 +115,7 @@ class _NewDriverState extends State<NewDriver> {
                       ],
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +127,7 @@ class _NewDriverState extends State<NewDriver> {
                               fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
                         Container(
                           //     margin: EdgeInsets.all(12),
@@ -211,7 +156,7 @@ class _NewDriverState extends State<NewDriver> {
                       ],
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     GestureDetector(
                       onTap: _openBottomSheet,
@@ -223,7 +168,7 @@ class _NewDriverState extends State<NewDriver> {
                                   fontFamily: "Brand-Regular",
                                   fontWeight: FontWeight.bold)),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Container(
                             height: 50,
@@ -259,7 +204,7 @@ class _NewDriverState extends State<NewDriver> {
                       ),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +216,7 @@ class _NewDriverState extends State<NewDriver> {
                               fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 5,
                         ),
                         Container(
                           //     margin: EdgeInsets.all(12),
@@ -288,7 +233,7 @@ class _NewDriverState extends State<NewDriver> {
                                 textCapitalization: TextCapitalization.words,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
-                                  hintText: "080XXXXXXXX",
+                                  hintText: "phone",
                                   prefixStyle: TextStyle(color: Colors.black),
                                   // prefixIcon: Icon(Icons.person),
                                   border: InputBorder.none,
@@ -299,19 +244,11 @@ class _NewDriverState extends State<NewDriver> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
                 Divider(
+                  height: MediaQuery.of(context).size.height * 0.08,
                   color: Colors.grey.shade500,
-                ),
-                const SizedBox(
-                  height: 15,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +325,7 @@ class _NewDriverState extends State<NewDriver> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Vehicle Brand.",
+                          const Text("Vehicle Manufacturer.",
                               style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -407,8 +344,8 @@ class _NewDriverState extends State<NewDriver> {
                                   width: 25.0,
                                 ),
                                 Text(
-                                  selectedbrand.isNotEmpty
-                                      ? selectedbrand
+                                  selectedBrand.isNotEmpty
+                                      ? selectedBrand
                                       : "Brand",
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -487,8 +424,8 @@ class _NewDriverState extends State<NewDriver> {
                                   width: 25.0,
                                 ),
                                 Text(
-                                  selectedyear.isNotEmpty
-                                      ? selectedyear
+                                  selectedYear.isNotEmpty
+                                      ? selectedYear
                                       : "year",
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -595,14 +532,9 @@ class _NewDriverState extends State<NewDriver> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
                 Divider(
+                  height: MediaQuery.of(context).size.height * 0.08,
                   color: Colors.grey.shade500,
-                ),
-                const SizedBox(
-                  height: 15,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,7 +561,7 @@ class _NewDriverState extends State<NewDriver> {
                             controller: dLicenseController,
                             textCapitalization: TextCapitalization.characters,
                             decoration: const InputDecoration(
-                              hintText: "XXXXXXXXXX",
+                              hintText: "Your licence number",
                               // prefixIcon: Icon(Icons.person),
                               border: InputBorder.none,
                             ),
@@ -647,299 +579,11 @@ class _NewDriverState extends State<NewDriver> {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
                   ],
-                ),
-                const SizedBox(
-                  height: 15,
                 ),
                 Divider(
+                  height: MediaQuery.of(context).size.height * 0.08,
                   color: Colors.grey.shade500,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Documents",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Brand-Regular",
-                      ),
-                    ),
-                    const Text(
-                      "You are legally required to submit some documents to register you as a driver",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Brand-Regular",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Driver License",
-                          style: TextStyle(
-                              fontFamily: "Brand-Regular",
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Text(
-                          "Please provide a clear photo of your driver's license",
-                          style: TextStyle(
-                            fontFamily: "Brand-Regular",
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                selectFile("driverLicense");
-                              },
-                              child: Container(
-                                height: 45,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                        255, 243, 245, 247),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Text("Upload  + ")),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 10,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                  color: isDriverLicenceU
-                                      ? Colors.green
-                                      : Colors.red,
-                                  borderRadius: BorderRadius.circular(20)),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                    Divider(
-                      color: Colors.grey.shade500,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Driver Photo",
-                          style: TextStyle(
-                              fontFamily: "Brand-Regular",
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Text(
-                          "Please provide a clear portrait of yourself. Make sure your face is clear with a white background",
-                          style: TextStyle(
-                            fontFamily: "Brand-Regular",
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                selectFile("driverPhoto");
-                              },
-                              child: Container(
-                                height: 45,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                        255, 243, 245, 247),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 15),
-                                      child: Text("Upload  + ")),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 10,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                  color: isDriverPhotoU
-                                      ? Colors.green
-                                      : Colors.red,
-                                  borderRadius: BorderRadius.circular(20)),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                    Divider(
-                      color: Colors.grey.shade500,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Vehicle Exterior",
-                          style: TextStyle(
-                              fontFamily: "Brand-Regular",
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Provide a clear photo of your Vehicle's Exterior from the from",
-                          style: TextStyle(
-                            fontFamily: "Brand-Regular",
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                selectFile("exterior");
-                              },
-                              child: Container(
-                                height: 45,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                        255, 243, 245, 247),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Text("Upload  + ")),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 10,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                  color: isDriverVExteriorU
-                                      ? Colors.green
-                                      : Colors.red,
-                                  borderRadius: BorderRadius.circular(20)),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                    Divider(
-                      color: Colors.grey.shade500,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Vehicle Interior",
-                          style: TextStyle(
-                              fontFamily: "Brand-Regular",
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Provide a clear photo of your Vehicle's Interior, Dashboard should be visible",
-                          style: TextStyle(
-                            fontFamily: "Brand-Regular",
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                selectFile("interior");
-                              },
-                              child: Container(
-                                height: 45,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                        255, 243, 245, 247),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Text("Upload  + ")),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 10,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                  color: isDriverVInteriorU
-                                      ? Colors.green
-                                      : Colors.red,
-                                  borderRadius: BorderRadius.circular(20)),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    )
-                  ],
-                ),
-                const Divider(),
-                const SizedBox(
-                  height: 20,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -965,9 +609,10 @@ class _NewDriverState extends State<NewDriver> {
                           child: TextFormField(
                             controller: passwordController,
                             textCapitalization: TextCapitalization.words,
+                            obscureText: true,
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
-                              hintText: "Type in password",
+                              hintText: "Password",
                               prefixStyle: TextStyle(color: Colors.black),
                               // prefixIcon: Icon(Icons.person),
                               border: InputBorder.none,
@@ -992,8 +637,9 @@ class _NewDriverState extends State<NewDriver> {
                             controller: password2Controller,
                             textCapitalization: TextCapitalization.words,
                             keyboardType: TextInputType.emailAddress,
+                            obscureText: true,
                             decoration: const InputDecoration(
-                              hintText: "Re-type password",
+                              hintText: "Confirm password",
                               prefixStyle: TextStyle(color: Colors.black),
                               // prefixIcon: Icon(Icons.person),
                               border: InputBorder.none,
@@ -1009,23 +655,24 @@ class _NewDriverState extends State<NewDriver> {
                 ),
                 SizedBox(
                   height: 45,
-                  child: ElevatedButton(
-                    onPressed: verifyFields,
-                    child: Row(
-                      children: const [
-                        Text(
-                          "Submit",
-                          style: TextStyle(
-                              fontFamily: "Brand-Regular",
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Icon(Icons.arrow_right_sharp),
-                      ],
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                  child: GestureDetector(
+                    onTap: () {
+                      verifyFields();
+                    },
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      decoration: BoxDecoration(
+                          color: Colors.indigo,
+                          borderRadius: BorderRadius.circular(30)),
+                      child: const Center(
+                          child: Text(
+                        "Continue",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "Brand-Regular",
+                            fontSize: 18),
+                      )),
                     ),
                   ),
                 ),
@@ -1033,7 +680,7 @@ class _NewDriverState extends State<NewDriver> {
                   height: 10,
                 ),
                 const Text(
-                    "After you submit, you cannot be able to change the information entered",
+                    "After you Proceed, you cannot change the information entered, as it will create your account as a driver",
                     style: TextStyle(fontFamily: "Brand-Regular", fontSize: 14))
               ],
             ),
@@ -1182,7 +829,7 @@ class _NewDriverState extends State<NewDriver> {
 
   _handleBrandTap(String brand) {
     setState(() {
-      selectedbrand = brand;
+      selectedBrand = brand;
       brandController.text = brand;
     });
     Navigator.pop(context);
@@ -1248,7 +895,7 @@ class _NewDriverState extends State<NewDriver> {
 
   _handleYearTap(String year) {
     setState(() {
-      selectedyear = year;
+      selectedYear = year;
       yearController.text = year;
     });
     Navigator.pop(context);
@@ -1319,14 +966,6 @@ class _NewDriverState extends State<NewDriver> {
       Fluttertoast.showToast(msg: "Please enter plate number");
     } else if (dLicenseController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter License number");
-    } else if (isDriverLicenceU == false) {
-      Fluttertoast.showToast(msg: "Please upload License");
-    } else if (isDriverPhotoU == false) {
-      Fluttertoast.showToast(msg: "Please upload your photo");
-    } else if (isDriverVExteriorU == false) {
-      Fluttertoast.showToast(msg: "Please upload vehicle exterior photo");
-    } else if (isDriverVInteriorU == false) {
-      Fluttertoast.showToast(msg: "Please upload vehicle interior photo");
     } else if (passwordController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter password1");
     } else if (password2Controller.text.isEmpty) {
@@ -1362,7 +1001,12 @@ class _NewDriverState extends State<NewDriver> {
         .user;
 
     if (firebaseUser != null) {
-      _uploadDocument();
+      var result = await Navigator.push(
+          context, MaterialPageRoute(builder: (context) => EmailVerify()));
+
+      if (result == "emailVerified") {
+        _uploadDocument();
+      }
     }
   }
 
@@ -1413,24 +1057,14 @@ class _NewDriverState extends State<NewDriver> {
         .set(newUserMap);
 
     final prefs = await SharedPreferences.getInstance();
-
     prefs.setString('my_name', fullNameController.text.trim());
-    prefs.setString(
-      'my_email',
-      emailController.text.trim(),
-    );
+    prefs.setString('my_email', emailController.text.trim());
     prefs.setString('my_phone', phoneController.text.trim());
     prefs.setString('v_number', lPlateController.text.trim());
-    prefs.setString(
-      'v_color',
-      colorController.text.trim(),
-    );
+    prefs.setString('v_color', colorController.text.trim());
     prefs.setString('v_model', modelController.text.trim());
 
-    AssistantMethods.readDriverTotalEarnings(context);
-    AssistantMethods.readDriverWeeklyEarnings(context);
-    AssistantMethods.readDriverRating(context);
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+        context, MaterialPageRoute(builder: (context) => const Upload()));
   }
 }

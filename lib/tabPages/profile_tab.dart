@@ -34,6 +34,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
   String vColor = "";
   String vModel = "";
   String vBrand = "";
+  String profilePic = "";
   String? ratings;
 
   @override
@@ -54,8 +55,8 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       vBrand = prefs.getString('v_brand') ?? onlineDriverData.car_brand!;
       vColor = prefs.getString('v_color') ?? onlineDriverData.car_color!;
       vModel = prefs.getString('v_model') ?? onlineDriverData.car_model!;
-      ratings =
-          onlineDriverData.ratings.toString() ?? prefs.getString('my_ratings');
+      profilePic = onlineDriverData.photoUrl!;
+      ratings = onlineDriverData.ratings.toString() ?? "0";
     });
   }
 
@@ -86,11 +87,12 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     child: Container(
                       margin: const EdgeInsets.only(top: 15),
                       child: Stack(
-                        children: const [
+                        children: [
                           CircleAvatar(
                             radius: 50,
-                            backgroundImage: AssetImage(
-                              'images/download.jpg',
+                            child: Image.network(
+                              profilePic,
+                              scale: 10,
                             ),
                           ),
                         ],
@@ -100,16 +102,19 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   Column(children: [
                     Text(onlineDriverData.name!,
                         style: const TextStyle(
-                            fontSize: 28,
-                            fontFamily: "Brand-regular",)),
+                          fontSize: 28,
+                          fontFamily: "Brand-regular",
+                        )),
                     Text(
                       " ${onlineDriverData.car_color} $vBrand ${onlineDriverData.car_model}, ${onlineDriverData.car_number}",
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 16,
                           fontFamily: "Brand-regular",
                           color: BrandColors.colorTextT),
                     ),
-                    SizedBox(height: 5,),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     const Text(
                       "Good Driver",
                       style: TextStyle(
@@ -118,7 +123,6 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                           color: Colors.green),
                     ),
                   ]),
-
 
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.02,

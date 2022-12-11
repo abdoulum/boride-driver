@@ -4,14 +4,12 @@ import 'package:boride_driver/push_notifications/notification_dialog_box.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PushNotificationSystem {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   Future initialize(BuildContext context) async {
-
     //1. Terminated
     //When the app is completely closed and opened directly from the push notification
     FirebaseMessaging.instance
@@ -43,7 +41,6 @@ class PushNotificationSystem {
 
   readUserRideRequestInformation(
       String userRideRequestId, BuildContext context) {
-
     FirebaseDatabase.instance
         .ref()
         .child("Ride Request")
@@ -67,7 +64,8 @@ class PushNotificationSystem {
 
         String userName = (snapData.snapshot.value! as Map)["rider_name"];
         String userPhone = (snapData.snapshot.value! as Map)["rider_phone"];
-        String paymentMethod = (snapData.snapshot.value! as Map)["payment_method"];
+        String paymentMethod =
+            (snapData.snapshot.value! as Map)["payment_method"];
 
         String? rideRequestId = snapData.snapshot.key;
 
@@ -93,9 +91,7 @@ class PushNotificationSystem {
             userRideRequestDetails: userRideRequestDetails,
           ),
         );
-      } else {
-
-      }
+      } else {}
     });
   }
 

@@ -1,6 +1,4 @@
-import 'package:boride_driver/global/global.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 
 class TestUi extends StatelessWidget {
   const TestUi({Key? key}) : super(key: key);
@@ -22,25 +20,27 @@ class TestUi extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
-            const SizedBox(height: 14,),
+            const SizedBox(
+              height: 14,
+            ),
 
             Image.asset(
               "images/car_logo.png",
               width: 100,
             ),
 
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
 
             //title
             const Text(
               "New Ride Request",
               style: TextStyle(
-                fontFamily: "Brand-Regular",
+                  fontFamily: "Brand-Regular",
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Colors.grey
-              ),
+                  color: Colors.grey),
             ),
 
             const SizedBox(height: 10.0),
@@ -64,13 +64,14 @@ class TestUi extends StatelessWidget {
                         width: 20,
                         height: 20,
                       ),
-                      const SizedBox(width: 14,),
+                      const SizedBox(
+                        width: 14,
+                      ),
                       const Expanded(
                         child: Text(
                           "Nile university of nigeria",
                           style: TextStyle(
                             fontFamily: "Brand-Regular",
-
                             fontSize: 14,
                             color: Colors.grey,
                           ),
@@ -89,14 +90,14 @@ class TestUi extends StatelessWidget {
                         width: 20,
                         height: 20,
                       ),
-                      const SizedBox(width: 14,),
+                      const SizedBox(
+                        width: 14,
+                      ),
                       const Expanded(
                         child: Text(
-
-                         "No26,  D Sheni street",
+                          "No26,  D Sheni street",
                           style: TextStyle(
                             fontFamily: "Brand-Regular",
-
                             fontSize: 14,
                             color: Colors.grey,
                           ),
@@ -108,13 +109,11 @@ class TestUi extends StatelessWidget {
               ),
             ),
 
-
             const Divider(
               height: 2,
               thickness: 0.2,
               color: Colors.black,
             ),
-
 
             //buttons cancel accept
             Padding(
@@ -158,25 +157,21 @@ class TestUi extends StatelessWidget {
                     //     Navigator.pop(context);
                     //   });
                     // },
-                    onPressed: () {  },
+                    onPressed: () {},
                     child: Text(
                       "Cancel".toUpperCase(),
                       style: const TextStyle(
                         fontFamily: "Brand-Regular",
-
                         fontSize: 12.0,
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 25.0),
-
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
-                    onPressed: ()
-                    {
+                    onPressed: () {
                       //accept the rideRequest
                       //acceptRideRequest(context);
                     },
@@ -191,7 +186,6 @@ class TestUi extends StatelessWidget {
                 ],
               ),
             ),
-
           ],
         ),
       ),

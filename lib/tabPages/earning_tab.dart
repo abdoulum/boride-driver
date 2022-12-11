@@ -80,7 +80,6 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                         color: Colors.grey.shade400,
                         borderRadius: BorderRadius.circular(15)),
                     width: MediaQuery.of(context).size.width * 1,
-
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.push(

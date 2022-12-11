@@ -2,8 +2,7 @@
 
 import 'package:firebase_database/firebase_database.dart';
 
-class TripsHistoryModel
-{
+class TripsHistoryModel {
   String? time;
   String? originAddress;
   String? destinationAddress;
@@ -21,8 +20,7 @@ class TripsHistoryModel
     this.userPhone,
   });
 
-  TripsHistoryModel.fromSnapshot(DataSnapshot dataSnapshot)
-  {
+  TripsHistoryModel.fromSnapshot(DataSnapshot dataSnapshot) {
     time = (dataSnapshot.value as dynamic)["time"];
     originAddress = (dataSnapshot.value as dynamic)["pickup_address"];
     destinationAddress = (dataSnapshot.value as dynamic)["dropoff_address"];

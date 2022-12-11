@@ -1,8 +1,8 @@
 import 'package:boride_driver/assistants/assistant_methods.dart';
-import 'package:boride_driver/widgets/brand_colors.dart';
 import 'package:boride_driver/tabPages/earning_tab.dart';
 import 'package:boride_driver/tabPages/home_tab.dart';
 import 'package:boride_driver/tabPages/profile_tab.dart';
+import 'package:boride_driver/widgets/brand_colors.dart';
 import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -41,11 +41,10 @@ class _MainScreenState extends State<MainScreen>
     AssistantMethods.readTripsKeysForOnlineDriver(context);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         body: TabBarView(
           physics: const NeverScrollableScrollPhysics(),
           controller: tabController,
