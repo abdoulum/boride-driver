@@ -1002,9 +1002,10 @@ class _NewDriverState extends State<NewDriver> {
 
     if (firebaseUser != null) {
       var result = await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => EmailVerify()));
+          context, MaterialPageRoute(builder: (context) => const EmailVerify()));
 
       if (result == "emailVerified") {
+        fAuth.currentUser!.updateDisplayName(fullNameController.text.trim());
         _uploadDocument();
       }
     }
@@ -1042,6 +1043,7 @@ class _NewDriverState extends State<NewDriver> {
       "phone": phoneController.text.trim(),
       "state": stateController.text.trim(),
       "joined": "OCT, 21",
+      "ratings": 5,
       "type": selectedRideType,
       "car_color": colorController.text.trim(),
       "car_brand": brandController.text.trim(),
@@ -1063,6 +1065,7 @@ class _NewDriverState extends State<NewDriver> {
     prefs.setString('v_number', lPlateController.text.trim());
     prefs.setString('v_color', colorController.text.trim());
     prefs.setString('v_model', modelController.text.trim());
+    prefs.setString('ratings', "0");
 
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const Upload()));
