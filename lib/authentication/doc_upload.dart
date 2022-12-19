@@ -34,6 +34,7 @@ class _UploadState extends State<Upload> {
   Future selectFile(String uploadT) async {
     if (uploadT == "driverPhoto") {
       final result = await FilePicker.platform.pickFiles(
+
           allowMultiple: false,
           type: FileType.custom,
           allowedExtensions: ['png', 'jpg']);
@@ -63,7 +64,6 @@ class _UploadState extends State<Upload> {
         message: "Uploading file",
       ),
     );
-    final name = result!.files.first.name;
     final file = File(pickedFile!.path!);
 
     final ppRef = FirebaseStorage.instance
@@ -86,7 +86,7 @@ class _UploadState extends State<Upload> {
     if (uploadT == "driverLicense") {
       TaskSnapshot uploadTask =
           await ppRef.child("driver_license").putFile(file);
-      downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      downloadUrl = await (uploadTask).ref.getDownloadURL();
       pu2Ref.child("driver_license").set(downloadUrl);
       setState(() {
         isDriverLicenceU = true;
@@ -94,7 +94,7 @@ class _UploadState extends State<Upload> {
       Navigator.pop(context);
     } else if (uploadT == "driverPhoto") {
       TaskSnapshot uploadTask = await ppRef.child("driver_photo").putFile(file);
-      downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      downloadUrl = await (uploadTask).ref.getDownloadURL();
       puRef.child("driver_photo").set(downloadUrl);
       pu2Ref.child("driver_photo").set(downloadUrl);
       setState(() {
@@ -104,7 +104,7 @@ class _UploadState extends State<Upload> {
     } else if (uploadT == "interior") {
       TaskSnapshot uploadTask =
           await ppRef.child("driver_vehicle_interior").putFile(file);
-      downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      downloadUrl = await (uploadTask).ref.getDownloadURL();
       pu2Ref.child("driver_vehicle_interior").set(downloadUrl);
       setState(() {
         isDriverVInteriorU = true;
@@ -113,7 +113,7 @@ class _UploadState extends State<Upload> {
     } else if (uploadT == "exterior") {
       TaskSnapshot uploadTask =
           await ppRef.child("driver_vehicle_exterior").putFile(file);
-      downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      downloadUrl = await (uploadTask).ref.getDownloadURL();
       pu2Ref.child("driver_vehicle_exterior").set(downloadUrl);
       setState(() {
         isDriverVExteriorU = true;

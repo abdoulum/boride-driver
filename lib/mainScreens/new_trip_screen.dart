@@ -234,7 +234,6 @@ class _NewTripScreenState extends State<NewTripScreen> {
         infoWindow: const InfoWindow(title: "This is your Position"),
       );
 
-      setState(() {
         CameraPosition cameraPosition =
             CameraPosition(target: latLngLiveDriverPosition, zoom: 16);
         newTripGoogleMapController!
@@ -243,7 +242,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
         setOfMarkers.removeWhere(
             (element) => element.markerId.value == "AnimatedMarker");
         setOfMarkers.add(animatingMarker);
-      });
+
 
       oldLatLng = latLngLiveDriverPosition;
       updateDurationTimeAtRealTime();
@@ -595,6 +594,8 @@ class _NewTripScreenState extends State<NewTripScreen> {
         .child(widget.userRideRequestDetails!.rideRequestId!);
     endTripLocationRef.child("trip_end_location").set(endingTripLocationMap);
 
+
+
     //get the tripDirectionDetails = distance travelled
     var currentDriverPositionLatLng = LatLng(
       onlineDriverCurrentPosition!.latitude,
@@ -606,11 +607,15 @@ class _NewTripScreenState extends State<NewTripScreen> {
             currentDriverPositionLatLng,
             widget.userRideRequestDetails!.originLatLng!);
 
-    if (hasDiscount == true) {
+
+    if (hasDiscount = true) {
+
+
       //fare amount with discount
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestinationDiscount(
               tripDirectionDetails!, discountP!);
+
 
       FirebaseDatabase.instance
           .ref()
@@ -665,7 +670,8 @@ class _NewTripScreenState extends State<NewTripScreen> {
       //save fare amount to driver total earnings
       saveFareAmountToDriverTotalEarnings(totalFareAmount.toDouble());
       saveFareAmountToDriverWeeklyEarnings(totalFareAmount.toDouble());
-    } else {
+    }
+    else {
       //fare amount without discount
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestination(
@@ -725,6 +731,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
       saveFareAmountToDriverTotalEarnings(totalFareAmount.toDouble());
       saveFareAmountToDriverWeeklyEarnings(totalFareAmount.toDouble());
     }
+    Navigator.pop(context);
   }
 
   saveFareAmountToDriverTotalEarnings(double totalFareAmount) {

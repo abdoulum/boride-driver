@@ -64,9 +64,9 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
               ),
             ),
             ListView.separated(
-              separatorBuilder: (context, i) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: const Divider(
+              separatorBuilder: (context, i) => const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Divider(
                   thickness: 0.2,
                   height: 1,
                   color: Colors.black,

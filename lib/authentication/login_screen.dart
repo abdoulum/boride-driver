@@ -1,5 +1,5 @@
 import 'package:boride_driver/assistants/assistant_methods.dart';
-import 'package:boride_driver/authentication/driver_registation.dart';
+import 'package:boride_driver/authentication/driver_registration.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
 import 'package:boride_driver/splashScreen/splash_screen.dart';
@@ -92,15 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
             Column(
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                const Center(
-                  child: Text(
-                    "Boride Driver",
-                    style: TextStyle(
-                      fontSize: 45,
-                      fontFamily: "Brand-Bold",
-                      color: Colors.indigo,
-                    ),
-                  ),
+                 Center(
+                  child:  Image.asset(
+                    "images/boridedriver_logo.png",
+                    width: MediaQuery.of(context).size.width * 0.5,
+                  )
                 ),
                 const SizedBox(height: 10),
                 Column(

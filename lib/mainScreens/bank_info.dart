@@ -1,7 +1,7 @@
+import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -126,7 +126,7 @@ class _BankInfoState extends State<BankInfo> {
                         child: Column(
                           children: [
                             const Text(
-                              "if you wish to change your bank details, please contact us via email",
+                              "if you wish to change your bank details, please contact us via email.",
                               style: TextStyle(
                                   fontFamily: "Brand-Regular", fontSize: 14),
                             ),
@@ -323,24 +323,6 @@ class _BankInfoState extends State<BankInfo> {
   @override
   void initState() {
     super.initState();
-    checkBankdetails();
-  }
-
-  checkBankdetails() {
-    FirebaseDatabase.instance
-        .ref()
-        .child("drivers")
-        .child(fAuth.currentUser!.uid)
-        .child("bank_details")
-        .child("account_name")
-        .once()
-        .then((value) {
-      if (value.snapshot.value != null) {
-        setState(() {
-          isUploaded = true;
-        });
-      }
-    });
   }
 
   verifyFields() {
@@ -353,12 +335,12 @@ class _BankInfoState extends State<BankInfo> {
     } else if (accountNumber == "") {
       Fluttertoast.showToast(
           msg: "Please enter the fields", toastLength: Toast.LENGTH_SHORT);
-    } else {
-      updateBankProfile();
     }
+      updateBankProfile();
+
   }
 
-  updateBankProfile() {
+  updateBankProfile() async {
     Map bankMap = {
       "bank_name": bankName.trim(),
       "account_name": accountName.trim(),
@@ -371,6 +353,7 @@ class _BankInfoState extends State<BankInfo> {
         .child(FirebaseAuth.instance.currentUser!.uid);
     profileRef.child("bank_details").set(bankMap);
 
-    checkBankdetails();
+    AssistantMethods.getBankData(context);
+    Navigator.pop(context);
   }
 }

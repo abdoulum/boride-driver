@@ -60,7 +60,7 @@ class Support extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => WebPage()));
+                          MaterialPageRoute(builder: (context) => const WebPage()));
                     },
                     child: Container(
                       height: 70,

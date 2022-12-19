@@ -38,9 +38,9 @@ class AssistantMethods {
 
   static Future<DirectionDetailsInfo?>
       obtainOriginToDestinationDirectionDetails(
-          LatLng origionPosition, LatLng destinationPosition) async {
+          LatLng originPosition, LatLng destinationPosition) async {
     String urlOriginToDestinationDirectionDetails =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${origionPosition.latitude},${origionPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
 
     var responseDirectionApi = await RequestAssistant.receiveRequest(
         urlOriginToDestinationDirectionDetails);
@@ -67,9 +67,9 @@ class AssistantMethods {
   }
 
   static Future<DirectionDetailsInfo?> obtainOriginToEndTripDirectionDetails(
-      LatLng origionPosition, LatLng destinationPosition) async {
+      LatLng originPosition, LatLng destinationPosition) async {
     String urlOriginToEndTripDirectionDetails =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${origionPosition.latitude},${origionPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=$mapKey";
 
     var responseDirectionApi = await RequestAssistant.receiveRequest(
         urlOriginToEndTripDirectionDetails);
@@ -261,7 +261,7 @@ class AssistantMethods {
     double totalFare = baseFare + distanceFare + timeFare;
 
     if (driverVehicleType == "boride-go") {
-      var dTotalFare;
+      double dTotalFare;
       dTotalFare = totalFare - ((discountP / 100) * totalFare);
       return (((dTotalFare - 0) ~/ 100) * 100).toInt();
     } else if (driverVehicleType == "boride-corporate") {

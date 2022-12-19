@@ -6,6 +6,7 @@ import 'package:boride_driver/push_notifications/push_notification_system.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
@@ -34,7 +35,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
 
-  PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
+  checkIfLocationPermissionAllowed() async {
+    _locationPermission = await Geolocator.requestPermission();
+
+    if (_locationPermission == LocationPermission.denied) {
+      _locationPermission = await Geolocator.requestPermission();
+    }
+  }
 
   locateDriverPosition() async {
     Position cPosition = await Geolocator.getCurrentPosition(
@@ -59,7 +66,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     await FirebaseDatabase.instance
         .ref()
         .child("drivers")
-        .child(currentFirebaseUser!.uid)
+        .child(fAuth.currentUser!.uid)
         .once()
         .then((DatabaseEvent snap) async {
       if (snap.snapshot.value != null) {
@@ -68,18 +75,18 @@ class _HomeTabPageState extends State<HomeTabPage> {
         onlineDriverData.phone = (snap.snapshot.value as Map)["phone"];
         onlineDriverData.email = (snap.snapshot.value as Map)["email"];
         onlineDriverData.earnings = (snap.snapshot.value as Map)["earnings"];
-        onlineDriverData.ratings = (snap.snapshot.value as Map)["ratings"];
+        onlineDriverData.ratings =
+            (snap.snapshot.value as Map)["ratings"] ?? "0";
         onlineDriverData.photoUrl =
             (snap.snapshot.value as Map)["driver_photo"];
         onlineDriverData.car_color =
             (snap.snapshot.value as Map)["car_details"]["car_color"];
         onlineDriverData.car_model =
             (snap.snapshot.value as Map)["car_details"]["car_model"];
-        onlineDriverData.car_brand =
-            (snap.snapshot.value as Map)["car_details"]["car_brand"];
         onlineDriverData.car_number =
             (snap.snapshot.value as Map)["car_details"]["car_number"];
-
+        onlineDriverData.car_brand =
+            (snap.snapshot.value as Map)["car_details"]["car_brand"];
         driverVehicleType = (snap.snapshot.value as Map)["car_details"]["type"];
 
         final prefs = await SharedPreferences.getInstance();
@@ -94,15 +101,50 @@ class _HomeTabPageState extends State<HomeTabPage> {
       }
     });
 
+    PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
     pushNotificationSystem.initialize(context);
     pushNotificationSystem.generateAndGetToken();
+
+    AssistantMethods.readDriverTotalEarnings(context);
+    AssistantMethods.readDriverWeeklyEarnings(context);
+    AssistantMethods.readDriverRating(context);
   }
 
   @override
   void initState() {
     super.initState();
+
     checkState();
     readCurrentDriverInformation();
+  }
+
+  checkState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stat = prefs.getString("user_stat");
+
+    if (stat == "r") {
+      Fluttertoast.showToast(msg: "active//");
+      isDriverActive = true;
+    } else {
+      Fluttertoast.showToast(msg: "inactive00");
+      setState(() {
+        isDriverActive = false;
+      });
+    }
+
+    if (isDriverActive) {
+      setState(() {
+        statusText = "Now Online";
+        buttonColor = Colors.transparent;
+      });
+      driverIsOnlineNow();
+    } else {
+      setState(() {
+        statusText = "Now Offline";
+        buttonColor = Colors.grey;
+      });
+      driverIsOfflineNow();
+    }
   }
 
   @override
@@ -230,8 +272,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOnlineNow() async {
-    pushNotificationSystem.generateAndGetToken();
-
     Position pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -250,6 +290,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
     ref.set("idle"); //searching for ride request
     ref.onValue.listen((event) {});
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("user_stat", "active");
   }
 
   updateDriversLocationAtRealTime() {
@@ -272,9 +315,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOfflineNow() async {
-    streamSubscriptionPosition!.pause();
-    streamSubscriptionPosition!.cancel();
-    Geofire.stopListener();
     Geofire.removeLocation(currentFirebaseUser!.uid);
 
     DatabaseReference? ref = FirebaseDatabase.instance
@@ -285,23 +325,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
     ref.onDisconnect();
     ref.remove();
     ref = null;
-  }
 
-  checkState() async {
-    if (isDriverActive) {
-      setState(() {
-        statusText = "Now Online";
-        isDriverActive = true;
-        buttonColor = Colors.transparent;
-      });
-      driverIsOnlineNow();
-    } else {
-      setState(() {
-        statusText = "Now Offline";
-        isDriverActive = false;
-        buttonColor = Colors.grey;
-      });
-      driverIsOfflineNow();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("user_stat", "inactive");
   }
 }

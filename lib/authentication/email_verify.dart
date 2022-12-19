@@ -4,7 +4,7 @@ import 'package:boride_driver/global/global.dart';
 import 'package:flutter/material.dart';
 
 class EmailVerify extends StatefulWidget {
-  EmailVerify({Key? key}) : super(key: key);
+  const EmailVerify({Key? key}) : super(key: key);
 
   @override
   State<EmailVerify> createState() => _EmailVerifyState();
@@ -77,7 +77,7 @@ class _EmailVerifyState extends State<EmailVerify> {
                   Expanded(
                     child: Text(
                       fAuth.currentUser!.email!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: "Brand-Regular",
                         fontWeight: FontWeight.w500,
                       ),

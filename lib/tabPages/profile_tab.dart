@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/bank_info.dart';
 import 'package:boride_driver/mainScreens/help_support_screen.dart';
 import 'package:boride_driver/widgets/brand_colors.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -37,6 +41,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
   String profilePic = "";
   String? ratings;
 
+  PlatformFile? pickedFile;
+  UploadTask? uploadTask;
+  String? downloadUrl;
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +63,33 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       vBrand = prefs.getString('v_brand') ?? onlineDriverData.car_brand!;
       vColor = prefs.getString('v_color') ?? onlineDriverData.car_color!;
       vModel = prefs.getString('v_model') ?? onlineDriverData.car_model!;
-      profilePic = onlineDriverData.photoUrl!;
-      ratings = onlineDriverData.ratings.toString() ?? "0";
+      ratings = onlineDriverData.ratings.toString();
+    });
+  }
+
+  selectFile() async {
+    final result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg']);
+    if (result == null) {
+      Fluttertoast.showToast(msg: 'No file selected');
+    }
+    setState(() {
+      pickedFile = result!.files.first;
+    });
+    final file = File(pickedFile!.path!);
+
+    final ppRef = FirebaseStorage.instance
+        .ref()
+        .child("Drivers")
+        .child(fAuth.currentUser!.uid);
+    TaskSnapshot uploadTask = await ppRef.child("driver_license").putFile(file);
+    downloadUrl = await (uploadTask).ref.getDownloadURL();
+
+    fAuth.currentUser!.updatePhotoURL(downloadUrl).then((value) {
+      fAuth.currentUser!.reload();
+      Fluttertoast.showToast(msg: "//////");
     });
   }
 
@@ -83,20 +116,37 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
               Column(
                 children: [
                   Container(
-                    margin: const EdgeInsets.only(bottom: 15),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 15),
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            child: Image.network(
-                              profilePic,
-                              scale: 10,
+                    margin: const EdgeInsets.only(bottom: 15, top: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            fAuth.currentUser!.photoURL!,
+                            width: 130,
+                            height: 130,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            selectFile();
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                                color: Colors.indigo,
+                                borderRadius: BorderRadius.circular(50)),
+                            child: const Icon(
+                              Icons.edit,
+                              size: 16,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   Column(children: [
