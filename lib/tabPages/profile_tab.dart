@@ -123,7 +123,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     child: ClipOval(
                       child:Image.network(
                         fAuth.currentUser!.photoURL!,
-                        scale: 13,
+                        scale: 18,
                       )
                     ),
                   ),

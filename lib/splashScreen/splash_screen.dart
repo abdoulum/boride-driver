@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:boride_driver/authentication/doc_upload.dart';
+import 'package:boride_driver/authentication/email_verify.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
@@ -30,8 +31,20 @@ class _MySplashScreenState extends State<MySplashScreen> {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (c) => const MainScreen()));
         } else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (c) => const Upload()));
+          if (fAuth.currentUser!.emailVerified) {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (c) => const Upload()));
+          } else {
+            fAuth.currentUser!.sendEmailVerification();
+
+            var result = await Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const EmailVerify()));
+
+            if (result == "emailVerified") {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const Upload()));
+            }
+          }
         }
       } else {
         Navigator.pushReplacement(

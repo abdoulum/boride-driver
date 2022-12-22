@@ -169,6 +169,14 @@ class _NewDriverState extends State<NewDriver> {
                           const SizedBox(
                             height: 5,
                           ),
+                          const Text(
+                              "This will be the state you offer ride services in.",
+                              style: TextStyle(
+                                fontFamily: "Brand-Regular",
+                              )),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           Container(
                             height: 50,
                             decoration: BoxDecoration(
@@ -658,6 +666,7 @@ class _NewDriverState extends State<NewDriver> {
                     onTap: () {
                       verifyFields();
                     },
+                    onDoubleTap: () {},
                     child: Container(
                       height: 50,
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -686,9 +695,6 @@ class _NewDriverState extends State<NewDriver> {
                     fontSize: 14,
                   ),
                 ),
-                const Text(
-                    "After you Proceed, you cannot change the information entered, as it will create your account as a driver",
-                    style: TextStyle(fontFamily: "Brand-Regular", fontSize: 14))
               ],
             ),
           ),
@@ -1010,12 +1016,17 @@ class _NewDriverState extends State<NewDriver> {
         .user;
 
     if (firebaseUser != null) {
+      fAuth.currentUser!.sendEmailVerification();
+      await _uploadDocument();
+
       var result = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => const EmailVerify()));
 
       if (result == "emailVerified") {
         fAuth.currentUser!.updateDisplayName(fullNameController.text.trim());
-        _uploadDocument();
+
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const Upload()));
       }
     }
   }
@@ -1075,8 +1086,5 @@ class _NewDriverState extends State<NewDriver> {
     prefs.setString('v_color', colorController.text.trim());
     prefs.setString('v_model', modelController.text.trim());
     prefs.setString('ratings', "0");
-
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const Upload()));
   }
 }

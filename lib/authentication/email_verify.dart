@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:boride_driver/global/global.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EmailVerify extends StatefulWidget {
   const EmailVerify({Key? key}) : super(key: key);
@@ -100,8 +101,10 @@ class _EmailVerifyState extends State<EmailVerify> {
               height: 15,
             ),
             TextButton(
-                onPressed: () {
-                  fAuth.currentUser!.sendEmailVerification();
+                onPressed: () async {
+                  await fAuth.currentUser!.sendEmailVerification().then((value) {
+                    Fluttertoast.showToast(msg: "Email sent");
+                  });
                 },
                 child: const Text("Resend email",
                     style: TextStyle(
