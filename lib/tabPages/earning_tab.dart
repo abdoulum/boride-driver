@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/infoHandler/app_info.dart';
 import 'package:boride_driver/mainScreens/trips_history_screen.dart';
@@ -120,33 +122,6 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                   const SizedBox(
                     height: 30,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade400,
-                        borderRadius: BorderRadius.circular(15)),
-                    width: MediaQuery.of(context).size.width * 1,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _handlePaymentInitialization();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 225, 226, 233),
-                          shadowColor: Colors.transparent),
-                      child: const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                        child: Text(
-                          "Pay commission",
-                          style: TextStyle(
-                            fontFamily: "Brand-Bold",
-                            fontSize: 25,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(
                     height: 50,
                   ),
@@ -178,6 +153,7 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
         paymentOptions: "card, bank transfer",
         customization: Customization(title: "Test Payment"),
         isTestMode: isTestMode);
+    // ignore: unused_local_variable
     final ChargeResponse response = await flutterWave.charge().whenComplete(() {
       Fluttertoast.showToast(msg: "Success///");
       Navigator.pop(context);

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:boride_driver/global/global.dart';
+import 'package:boride_driver/mainScreens/main_screen.dart';
 import 'package:boride_driver/models/user_ride_request_information.dart';
 import 'package:boride_driver/widgets/receive_pay.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,7 +14,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../assistants/assistant_methods.dart';
-import '../widgets/progress_dialog.dart';
 
 class NewTripScreen extends StatefulWidget {
   UserRideRequestInformation? userRideRequestDetails;
@@ -65,11 +65,12 @@ class _NewTripScreenState extends State<NewTripScreen> {
   Future<void> drawPolyLineFromOriginToDestination(
       LatLng originLatLng, LatLng destinationLatLng) async {
     showDialog(
-      context: context,
-      builder: (BuildContext context) => ProgressDialog(
-        message: "Please wait...",
-      ),
-    );
+        context: context,
+        builder: (BuildContext context) => const Center(
+              child: CircularProgressIndicator(
+                color: Colors.indigo,
+              ),
+            ));
 
     var directionDetailsInfo =
         await AssistantMethods.obtainOriginToDestinationDirectionDetails(
@@ -215,6 +216,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
   }
 
   getDriversLocationUpdatesAtRealTime() {
+    // ignore: unused_local_variable
     LatLng oldLatLng = const LatLng(0, 0);
 
     streamSubscriptionDriverLivePosition =
@@ -234,15 +236,14 @@ class _NewTripScreenState extends State<NewTripScreen> {
         infoWindow: const InfoWindow(title: "This is your Position"),
       );
 
-        CameraPosition cameraPosition =
-            CameraPosition(target: latLngLiveDriverPosition, zoom: 16);
-        newTripGoogleMapController!
-            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+      CameraPosition cameraPosition =
+          CameraPosition(target: latLngLiveDriverPosition, zoom: 16);
+      newTripGoogleMapController!
+          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-        setOfMarkers.removeWhere(
-            (element) => element.markerId.value == "AnimatedMarker");
-        setOfMarkers.add(animatingMarker);
-
+      setOfMarkers
+          .removeWhere((element) => element.markerId.value == "AnimatedMarker");
+      setOfMarkers.add(animatingMarker);
 
       oldLatLng = latLngLiveDriverPosition;
       updateDurationTimeAtRealTime();
@@ -488,12 +489,13 @@ class _NewTripScreenState extends State<NewTripScreen> {
                             });
 
                             showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext c) => ProgressDialog(
-                                message: "Loading...",
-                              ),
-                            );
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext c) => const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.indigo,
+                                      ),
+                                    ));
 
                             await drawPolyLineFromOriginToDestination(
                                 widget.userRideRequestDetails!.originLatLng!,
@@ -560,29 +562,31 @@ class _NewTripScreenState extends State<NewTripScreen> {
         .child(widget.userRideRequestDetails!.rideRequestId!)
         .child("status")
         .onValue
-        .listen((event) {
+        .listen((event) async {
       if (event.snapshot.value == "cancelled") {
-        streamSubscriptionDriverLivePosition!.cancel();
+        await streamSubscriptionDriverLivePosition!.cancel();
         FirebaseDatabase.instance
             .ref()
             .child("drivers")
             .child(fAuth.currentUser!.uid)
             .child("newRide")
             .set("idle");
-        Geofire.removeLocation(fAuth.currentUser!.uid);
-        Phoenix.rebirth(context);
+        await Geofire.removeLocation(fAuth.currentUser!.uid);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const MainScreen()));
       }
     });
   }
 
   endTripNow() async {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => ProgressDialog(
-        message: "Please wait...",
-      ),
-    );
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => const Center(
+              child: CircularProgressIndicator(
+                color: Colors.indigo,
+              ),
+            ));
 
     Map endingTripLocationMap = {
       "latitude": driverCurrentPosition!.latitude.toString(),
@@ -593,8 +597,6 @@ class _NewTripScreenState extends State<NewTripScreen> {
         .child("Ride Request")
         .child(widget.userRideRequestDetails!.rideRequestId!);
     endTripLocationRef.child("trip_end_location").set(endingTripLocationMap);
-
-
 
     //get the tripDirectionDetails = distance travelled
     var currentDriverPositionLatLng = LatLng(
@@ -607,15 +609,11 @@ class _NewTripScreenState extends State<NewTripScreen> {
             currentDriverPositionLatLng,
             widget.userRideRequestDetails!.originLatLng!);
 
-
     if (hasDiscount = true) {
-
-
       //fare amount with discount
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestinationDiscount(
               tripDirectionDetails!, discountP!);
-
 
       FirebaseDatabase.instance
           .ref()
@@ -670,8 +668,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
       //save fare amount to driver total earnings
       saveFareAmountToDriverTotalEarnings(totalFareAmount.toDouble());
       saveFareAmountToDriverWeeklyEarnings(totalFareAmount.toDouble());
-    }
-    else {
+    } else {
       //fare amount without discount
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestination(
@@ -690,6 +687,13 @@ class _NewTripScreenState extends State<NewTripScreen> {
           .child(widget.userRideRequestDetails!.rideRequestId!)
           .child("status")
           .set("ended");
+
+      FirebaseDatabase.instance
+          .ref()
+          .child("Ride Request")
+          .child(widget.userRideRequestDetails!.rideRequestId!)
+          .child("completed")
+          .set("true");
 
       streamSubscriptionDriverLivePosition!.cancel();
 

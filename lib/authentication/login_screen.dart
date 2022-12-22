@@ -3,7 +3,6 @@ import 'package:boride_driver/authentication/driver_registration.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
 import 'package:boride_driver/splashScreen/splash_screen.dart';
-import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -36,8 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext c) {
-          return ProgressDialog(
-            message: "Processing, Please wait...",
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.indigo,
+            ),
           );
         });
 
@@ -52,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
       AssistantMethods.readDriverRating(context);
     }).catchError((msg) {
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+      Fluttertoast.showToast(msg: "Please check your credentials");
     }))
         .user;
 
@@ -92,12 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Column(
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                 Center(
-                  child:  Image.asset(
-                    "images/boridedriver_logo.png",
-                    width: MediaQuery.of(context).size.width * 0.5,
-                  )
-                ),
+                Center(
+                    child: Image.asset(
+                  "images/boridedriver_logo.png",
+                  color: Colors.indigo,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                )),
                 const SizedBox(height: 10),
                 Column(
                   children: [
@@ -106,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Center(
                         child: Text(
                             "Drive with boride and earn with your personal vehicle",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
                               fontFamily: "Brand-Regular",
@@ -116,80 +118,58 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Email",
-                      style: TextStyle(fontFamily: "Brand-Regular"),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      //     margin: EdgeInsets.all(12),
-                      height: 45,
-                      width: 350,
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 243, 245, 247),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: TextFormField(
-                            controller: emailTextEditingController,
-                            textCapitalization: TextCapitalization.words,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                              hintText: "Example@gmail.com",
-                              prefixStyle: TextStyle(color: Colors.black),
-                              // prefixIcon: Icon(Icons.person),
-                              border: InputBorder.none,
-                            ),
-                          ),
+                Container(
+                  //     margin: EdgeInsets.all(12),
+                  height: 55,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 243, 245, 247),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextFormField(
+                        controller: emailTextEditingController,
+                        textCapitalization: TextCapitalization.words,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          hintText: "Email",
+                          hintStyle: TextStyle(fontFamily: "Brand-regular"),
+                          prefixStyle: TextStyle(
+                              color: Colors.black, fontFamily: "Brand-regular"),
+                          // prefixIcon: Icon(Icons.person),
+                          border: InputBorder.none,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Password",
-                      style: TextStyle(fontFamily: "Brand-Regular"),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      //     margin: EdgeInsets.all(12),
-                      height: 45,
-                      width: 350,
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 243, 245, 247),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: TextFormField(
-                            controller: passwordTextEditingController,
-                            textCapitalization: TextCapitalization.words,
-                            keyboardType: TextInputType.text,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              prefixStyle: TextStyle(color: Colors.black),
-                              // prefixIcon: Icon(Icons.person),
-                              border: InputBorder.none,
-                            ),
-                          ),
+                Container(
+                  //     margin: EdgeInsets.all(12),
+                  height: 55,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 243, 245, 247),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextFormField(
+                        controller: passwordTextEditingController,
+                        textCapitalization: TextCapitalization.words,
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          hintText: "Password",
+                          hintStyle: TextStyle(fontFamily: "Brand-regular"),
+                          prefixStyle: TextStyle(color: Colors.black),
+                          // prefixIcon: Icon(Icons.person),
+                          border: InputBorder.none,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(
                   height: 30,

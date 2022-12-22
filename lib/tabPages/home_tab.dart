@@ -6,7 +6,6 @@ import 'package:boride_driver/push_notifications/push_notification_system.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
@@ -122,13 +121,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
     final prefs = await SharedPreferences.getInstance();
     final stat = prefs.getString("user_stat");
 
-    if (stat == "r") {
-      Fluttertoast.showToast(msg: "active//");
+    if (stat == "active") {
       isDriverActive = true;
+      driverIsOnlineNow();
     } else {
-      Fluttertoast.showToast(msg: "inactive00");
       setState(() {
         isDriverActive = false;
+        driverIsOfflineNow();
       });
     }
 
@@ -315,7 +314,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOfflineNow() async {
-    Geofire.removeLocation(currentFirebaseUser!.uid);
+    streamSubscriptionPosition!.pause();
+    await streamSubscriptionPosition!.cancel();
+    Geofire.removeLocation(fAuth.currentUser!.uid);
 
     DatabaseReference? ref = FirebaseDatabase.instance
         .ref()

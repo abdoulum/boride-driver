@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/widgets/brand_colors.dart';
-import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -34,7 +33,6 @@ class _UploadState extends State<Upload> {
   Future selectFile(String uploadT) async {
     if (uploadT == "driverPhoto") {
       final result = await FilePicker.platform.pickFiles(
-
           allowMultiple: false,
           type: FileType.custom,
           allowedExtensions: ['png', 'jpg']);
@@ -60,8 +58,10 @@ class _UploadState extends State<Upload> {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => ProgressDialog(
-        message: "Uploading file",
+      builder: (BuildContext context) => const Center(
+        child: CircularProgressIndicator(
+          color: Colors.indigo,
+        ),
       ),
     );
     final file = File(pickedFile!.path!);
@@ -97,6 +97,7 @@ class _UploadState extends State<Upload> {
       downloadUrl = await (uploadTask).ref.getDownloadURL();
       puRef.child("driver_photo").set(downloadUrl);
       pu2Ref.child("driver_photo").set(downloadUrl);
+      await fAuth.currentUser!.updatePhotoURL(downloadUrl);
       setState(() {
         isDriverPhotoU = true;
       });
@@ -449,8 +450,10 @@ class _UploadState extends State<Upload> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext c) {
-          return ProgressDialog(
-            message: "Please wait...",
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.indigo,
+            ),
           );
         });
 
@@ -459,6 +462,7 @@ class _UploadState extends State<Upload> {
         isDriverVExteriorU &&
         isDriverVInteriorU) {
       checkIfLocationPermissionAllowed();
+
       Timer.periodic(const Duration(seconds: 5), (timer) {
         Phoenix.rebirth(context);
       });

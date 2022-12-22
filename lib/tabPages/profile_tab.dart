@@ -64,7 +64,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       vColor = prefs.getString('v_color') ?? onlineDriverData.car_color!;
       vModel = prefs.getString('v_model') ?? onlineDriverData.car_model!;
       ratings = onlineDriverData.ratings.toString();
+
     });
+
+
   }
 
   selectFile() async {
@@ -117,36 +120,11 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(bottom: 15, top: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipOval(
-                          child: Image.network(
-                            fAuth.currentUser!.photoURL!,
-                            width: 130,
-                            height: 130,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            selectFile();
-                          },
-                          child: Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                                color: Colors.indigo,
-                                borderRadius: BorderRadius.circular(50)),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: ClipOval(
+                      child:Image.network(
+                        fAuth.currentUser!.photoURL!,
+                        scale: 13,
+                      )
                     ),
                   ),
                   Column(children: [
@@ -417,7 +395,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         GestureDetector(
                           onTap: () {
                             Share.share(
-                                'https://boride.page.link/driver/${fAuth.currentUser!.uid}');
+                                'https://boride.page.link/driver/${"0Np0X5"}');
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -432,7 +410,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                 SizedBox(width: 40),
                                 Expanded(
                                   child: Text(
-                                    'Invite Friends',
+                                    'Invite',
                                     style: TextStyle(
                                       fontFamily: "Brand-Regular",
                                       fontWeight: FontWeight.w500,

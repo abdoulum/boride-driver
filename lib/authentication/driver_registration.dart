@@ -2,7 +2,6 @@ import 'package:boride_driver/authentication/doc_upload.dart';
 import 'package:boride_driver/authentication/email_verify.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
-import 'package:boride_driver/widgets/progress_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -680,6 +679,14 @@ class _NewDriverState extends State<NewDriver> {
                   height: 10,
                 ),
                 const Text(
+                  "By clicking on continue, you agree to the terms & conditions of this service,After you Proceed, you cannot change the information entered, as it will create your account as a driver",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: "Brand-Regular",
+                    fontSize: 14,
+                  ),
+                ),
+                const Text(
                     "After you Proceed, you cannot change the information entered, as it will create your account as a driver",
                     style: TextStyle(fontFamily: "Brand-Regular", fontSize: 14))
               ],
@@ -984,8 +991,10 @@ class _NewDriverState extends State<NewDriver> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext c) {
-          return ProgressDialog(
-            message: "Processing, Please wait...",
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.indigo,
+            ),
           );
         });
 
@@ -1001,8 +1010,8 @@ class _NewDriverState extends State<NewDriver> {
         .user;
 
     if (firebaseUser != null) {
-      var result = await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const EmailVerify()));
+      var result = await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const EmailVerify()));
 
       if (result == "emailVerified") {
         fAuth.currentUser!.updateDisplayName(fullNameController.text.trim());

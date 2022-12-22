@@ -8,6 +8,7 @@ import 'package:boride_driver/splashScreen/retry_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:once/once.dart';
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({Key? key}) : super(key: key);
@@ -24,6 +25,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
     Timer(const Duration(seconds: 3), () async {
       if (fAuth.currentUser != null) {
         await checkRegistrationStatus();
+        Once.runOnce("first_time", callback: checkInternetAccess);
         if (hasCompletedRegistration) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (c) => const MainScreen()));

@@ -28,10 +28,9 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: const Color.fromARGB(255, 225, 226, 233),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -42,7 +41,7 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 Text(
                   "Rider:  " + widget.tripsHistoryModel!.userName!,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontFamily: "Brand-Regular",
                     fontWeight: FontWeight.bold,
                   ),
@@ -53,7 +52,7 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 Text(
                   "\$ " + widget.tripsHistoryModel!.fareAmount!,
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontFamily: "Brand-Regular",
                     fontWeight: FontWeight.bold,
                   ),
@@ -70,6 +69,7 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
                 const Icon(
                   Ionicons.pin,
                   color: Colors.green,
+                  size: 16,
                 ),
                 const SizedBox(
                   width: 10,
@@ -90,14 +90,14 @@ class _HistoryDesignUIWidgetState extends State<HistoryDesignUIWidget> {
               ],
             ),
             const SizedBox(
-              height: 5,
+              height: 8,
             ),
-
             Row(
               children: [
                 const Icon(
                   Ionicons.location,
                   color: Colors.indigo,
+                  size: 16,
                 ),
                 const SizedBox(
                   width: 10,

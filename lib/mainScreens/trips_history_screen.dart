@@ -1,3 +1,4 @@
+import 'package:boride_driver/mainScreens/trip_history_display.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,7 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         shadowColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         title: const Text(
           "Trips History",
           style: TextStyle(color: Colors.black, fontFamily: 'Brand-Regular'),
@@ -40,8 +41,6 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
         child: Column(
           children: [
             Container(
-              height: 150,
-              color: Colors.white,
               padding: const EdgeInsets.all(30),
               margin: const EdgeInsets.only(top: 10),
               child: Center(
@@ -73,12 +72,32 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
                 ),
               ),
               itemBuilder: (context, i) {
-                return Card(
-                  color: Colors.white54,
-                  child: HistoryDesignUIWidget(
-                    tripsHistoryModel:
-                        Provider.of<AppInfo>(context, listen: false)
-                            .allTripsHistoryInformationList[i],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TripHistoryDisplay(
+                                      index: i,
+                                      tripsHistoryModel: Provider.of<AppInfo>(
+                                              context,
+                                              listen: false)
+                                          .allTripsHistoryInformationList[i],
+                                    )
+                            )
+                        );
+                      },
+                      child: HistoryDesignUIWidget(
+                        tripsHistoryModel:
+                            Provider.of<AppInfo>(context, listen: false)
+                                .allTripsHistoryInformationList[i],
+                      ),
+                    ),
                   ),
                 );
               },
