@@ -2,11 +2,13 @@ import 'package:boride_driver/assistants/assistant_methods.dart';
 import 'package:boride_driver/authentication/driver_registration.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
+import 'package:boride_driver/splashScreen/intro_screen.dart';
 import 'package:boride_driver/splashScreen/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:once/once.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -19,6 +21,17 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
   bool hasCompletedRegistration = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Once.runOnce("First_visit", callback: visitIntroPage);
+  }
+
+  visitIntroPage() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (c) => const IntroScreen()));
+  }
 
   validateForm() {
     if (!emailTextEditingController.text.contains("@")) {
@@ -47,10 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
       email: emailTextEditingController.text.trim(),
       password: passwordTextEditingController.text.trim(),
     )
-            .whenComplete(() {
-      AssistantMethods.readDriverTotalEarnings(context);
-      AssistantMethods.readDriverWeeklyEarnings(context);
-      AssistantMethods.readDriverRating(context);
+            .whenComplete(() async {
+      await loadData();
     }).catchError((msg) {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Please check your credentials");
@@ -80,6 +91,31 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Error Occurred during Login.");
     }
+  }
+
+  checkIfDocumentsIsVerified() {
+    var status;
+    FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("isDocVerified")
+        .once()
+        .then((value) {
+      if (value.snapshot.exists) {
+        status = value.snapshot.value.toString();
+        if (status == "true") {
+        } else {
+          return;
+        }
+      }
+    });
+  }
+
+  loadData() {
+    AssistantMethods.readDriverTotalEarnings(context);
+    AssistantMethods.readDriverWeeklyEarnings(context);
+    AssistantMethods.readDriverRating(context);
   }
 
   @override

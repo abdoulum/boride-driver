@@ -48,6 +48,8 @@ dependencies:
   flutter_geofire: ^2.0.1
   fluttertoast: ^8.0.9
   webview_flutter: ^3.0.4
+  flutter_onboarding_slider: ^1.0.8
+  flutter_svg: ^1.1.6
   once: ^1.5.0
 
   provider: ^6.0.2

@@ -10,7 +10,7 @@ class AppInfo extends ChangeNotifier {
   String driverAverageRatings = "0";
 
   List<String> historyTripsKeysList = [];
-  List<TripsHistoryModel> allTripsHistoryInformationList = [];
+  List<TripsHistoryModel>   allTripsHistoryInformationList = [];
 
   void updatePickUpLocationAddress(Directions userPickUpAddress) {
     userPickUpLocation = userPickUpAddress;

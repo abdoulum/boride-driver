@@ -1,13 +1,9 @@
 // ignore_for_file: unused_element
 
-import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/infoHandler/app_info.dart';
 import 'package:boride_driver/mainScreens/trips_history_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutterwave_standard/flutterwave.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 class EarningsTabPage extends StatefulWidget {
   const EarningsTabPage({Key? key}) : super(key: key);
@@ -17,7 +13,11 @@ class EarningsTabPage extends StatefulWidget {
 }
 
 class _EarningsTabPageState extends State<EarningsTabPage> {
-  bool isTestMode = true;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,66 +119,12 @@ class _EarningsTabPageState extends State<EarningsTabPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  const SizedBox(
-                    height: 50,
-                  ),
                 ],
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  _handlePaymentInitialization() async {
-    showLoading("Loading, please wait ......");
-
-    final Customer customer = Customer(
-        name: onlineDriverData.name!,
-        phoneNumber: onlineDriverData.phone!,
-        email: onlineDriverData.email!);
-
-    final Flutterwave flutterWave = Flutterwave(
-        context: context,
-        publicKey: getPublicKey(),
-        currency: "NGN",
-        redirectUrl: 'https://facebook.com',
-        txRef: "${const Uuid().v1()}-Txd",
-        amount: "8000",
-        customer: customer,
-        paymentOptions: "card, bank transfer",
-        customization: Customization(title: "Test Payment"),
-        isTestMode: isTestMode);
-    // ignore: unused_local_variable
-    final ChargeResponse response = await flutterWave.charge().whenComplete(() {
-      Fluttertoast.showToast(msg: "Success///");
-      Navigator.pop(context);
-    });
-  }
-
-  String getPublicKey() {
-    if (isTestMode) return "FLWPUBK_TEST-1b50fcec6e04d0b2b0e471d74827197b-X";
-    return "FLWPUBK-45587fdb1c84335354ab0fa388b803d5-X";
-  }
-
-  Future<void> showLoading(String message) {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            margin: const EdgeInsets.fromLTRB(30, 20, 30, 20),
-            width: double.infinity,
-            height: 50,
-            child: Text(message),
-          ),
-        );
-      },
     );
   }
 }

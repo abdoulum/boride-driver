@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/widgets/brand_colors.dart';
+import 'package:boride_driver/widgets/doc_progress_dialog.dart';
+import 'package:boride_driver/widgets/waiting_doc_verify.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -445,7 +446,7 @@ class _UploadState extends State<Upload> {
     );
   }
 
-  checkUpload() {
+  checkUpload() async {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -461,10 +462,24 @@ class _UploadState extends State<Upload> {
         isDriverPhotoU &&
         isDriverVExteriorU &&
         isDriverVInteriorU) {
-      checkIfLocationPermissionAllowed();
+      await checkIfLocationPermissionAllowed();
 
-      Timer.periodic(const Duration(seconds: 5), (timer) {
-        Phoenix.rebirth(context);
+      Navigator.pop(context);
+
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext c) {
+            return Center(
+              child: DocumentVerify(),
+            );
+          });
+
+      Timer.periodic(const Duration(seconds: 3), (timer) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const WaitingDocumentVerify()));
       });
     }
   }

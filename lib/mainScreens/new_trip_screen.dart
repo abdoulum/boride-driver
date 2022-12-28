@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
@@ -56,7 +57,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
 
   bool isRequestDirectionDetails = false;
 
-  bool? hasDiscount;
+  bool hasDiscount = false;
   int? discountP;
 
   String paymentMethod = "";
@@ -609,7 +610,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
             currentDriverPositionLatLng,
             widget.userRideRequestDetails!.originLatLng!);
 
-    if (hasDiscount = true) {
+    if (hasDiscount) {
       //fare amount with discount
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestinationDiscount(
@@ -627,7 +628,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
           .child("Ride Request")
           .child(widget.userRideRequestDetails!.rideRequestId!)
           .child("status")
-          .set("ended");
+          .set("Completed");
 
       streamSubscriptionDriverLivePosition!.cancel();
 
@@ -668,8 +669,11 @@ class _NewTripScreenState extends State<NewTripScreen> {
       //save fare amount to driver total earnings
       saveFareAmountToDriverTotalEarnings(totalFareAmount.toDouble());
       saveFareAmountToDriverWeeklyEarnings(totalFareAmount.toDouble());
-    } else {
+    }
+    else {
       //fare amount without discount
+
+      Fluttertoast.showToast(msg: "errr///");
       int totalFareAmount =
           AssistantMethods.calculateFareAmountFromOriginToDestination(
               tripDirectionDetails!);
@@ -686,7 +690,7 @@ class _NewTripScreenState extends State<NewTripScreen> {
           .child("Ride Request")
           .child(widget.userRideRequestDetails!.rideRequestId!)
           .child("status")
-          .set("ended");
+          .set("Completed");
 
       FirebaseDatabase.instance
           .ref()
@@ -712,6 +716,10 @@ class _NewTripScreenState extends State<NewTripScreen> {
       });
 
       if (paymentMethod == "Card") {
+
+        Fluttertoast.showToast(msg: "Ride Complete");
+        Fluttertoast.showToast(msg: "paying with card");
+
       } else {
         var response = await showDialog(
           context: context,
@@ -825,6 +833,9 @@ class _NewTripScreenState extends State<NewTripScreen> {
     databaseReference
         .child("car_model")
         .set(onlineDriverData.car_model.toString());
+    databaseReference
+        .child("car_brand")
+        .set(onlineDriverData.car_brand.toString());
     databaseReference
         .child("car_number")
         .set(onlineDriverData.car_number.toString());

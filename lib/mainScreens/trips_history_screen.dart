@@ -88,9 +88,7 @@ class _TripsHistoryScreenState extends State<TripsHistoryScreen> {
                                               context,
                                               listen: false)
                                           .allTripsHistoryInformationList[i],
-                                    )
-                            )
-                        );
+                                    )));
                       },
                       child: HistoryDesignUIWidget(
                         tripsHistoryModel:

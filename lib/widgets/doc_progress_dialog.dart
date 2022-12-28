@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
-class ProgressDialog extends StatelessWidget {
-  String? message;
-
-  ProgressDialog({Key? key, this.message}) : super(key: key);
+class DocumentVerify extends StatelessWidget {
+  DocumentVerify({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +29,23 @@ class ProgressDialog extends StatelessWidget {
               const SizedBox(
                 width: 26.0,
               ),
-              Text(
-                message!,
-                style: const TextStyle(
+              const Text(
+                "You will receive an email when we verify your documents and will be able to use your account",
+                style: TextStyle(
                   color: Colors.black,
                   fontSize: 12,
                 ),
               ),
+              TextButton(
+                  onPressed: () {
+                    Timer.periodic(const Duration(seconds: 2), (timer) {
+                      Phoenix.rebirth(context);
+                    });
+                  },
+                  child: const Text(
+                    "Ok",
+                    style: TextStyle(fontFamily: "Brand-regular"),
+                  )),
             ],
           ),
         ),

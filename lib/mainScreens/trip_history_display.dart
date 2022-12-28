@@ -1,9 +1,10 @@
 import 'package:boride_driver/models/trip_history_model.dart';
+import 'package:boride_driver/widgets/report_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
-class TripHistoryDisplay extends StatefulWidget {
+class TripHistoryDisplay extends StatelessWidget {
   int? index;
   TripsHistoryModel? tripsHistoryModel;
 
@@ -13,13 +14,10 @@ class TripHistoryDisplay extends StatefulWidget {
     this.index,
   }) : super(key: key);
 
-  @override
-  State<TripHistoryDisplay> createState() => _TripHistoryDisplayState();
-}
-
-class _TripHistoryDisplayState extends State<TripHistoryDisplay> {
   String name = "";
+
   String phone = "";
+
   String price = "";
 
   Color color = const Color.fromARGB(50, 200, 200, 200);
@@ -27,9 +25,9 @@ class _TripHistoryDisplayState extends State<TripHistoryDisplay> {
   @override
   Widget build(BuildContext context) {
     // id = Provider.of<AppInfo>(context).driverList[widget.index!].id.toString();
-    name = widget.tripsHistoryModel!.userName.toString();
-    phone = widget.tripsHistoryModel!.userPhone.toString();
-    price = widget.tripsHistoryModel!.fareAmount.toString();
+    name = tripsHistoryModel!.userName.toString();
+    phone = tripsHistoryModel!.userPhone.toString();
+    price = tripsHistoryModel!.fareAmount.toString();
 
     return Scaffold(
       appBar: AppBar(
@@ -116,11 +114,10 @@ class _TripHistoryDisplayState extends State<TripHistoryDisplay> {
                           ),
                           Expanded(
                             child: Text(
-                              widget.tripsHistoryModel!.originAddress!.length >
-                                      32
-                                  ? widget.tripsHistoryModel!.originAddress!
+                              tripsHistoryModel!.originAddress!.length > 32
+                                  ? tripsHistoryModel!.originAddress!
                                       .substring(0, 32)
-                                  : widget.tripsHistoryModel!.originAddress!,
+                                  : tripsHistoryModel!.originAddress!,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 18,
@@ -145,14 +142,10 @@ class _TripHistoryDisplayState extends State<TripHistoryDisplay> {
                           ),
                           Expanded(
                             child: Text(
-                              widget.tripsHistoryModel!.destinationAddress!
-                                          .length >
-                                      28
-                                  ? widget
-                                      .tripsHistoryModel!.destinationAddress!
+                              tripsHistoryModel!.destinationAddress!.length > 28
+                                  ? tripsHistoryModel!.destinationAddress!
                                       .substring(0, 28)
-                                  : widget
-                                      .tripsHistoryModel!.destinationAddress!,
+                                  : tripsHistoryModel!.destinationAddress!,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontFamily: "Brand-Regular",
@@ -177,21 +170,27 @@ class _TripHistoryDisplayState extends State<TripHistoryDisplay> {
             ),
           ),
           const Spacer(),
-          Container(
-            height: 50,
-            width: MediaQuery.of(context).size.width * 0.7,
-            alignment: Alignment.centerLeft,
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            decoration: BoxDecoration(
-                color: Colors.red.shade500,
-                borderRadius: BorderRadius.circular(30)),
-            child: const Center(
-              child: Text("Report Rider",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: "Brand-Bold")),
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                  context: context, builder: (context) => const ReportPage());
+            },
+            child: Container(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.7,
+              alignment: Alignment.centerLeft,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                  color: Colors.red.shade500,
+                  borderRadius: BorderRadius.circular(30)),
+              child: const Center(
+                child: Text("Report Rider",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: "Brand-Bold")),
+              ),
             ),
           ),
         ],

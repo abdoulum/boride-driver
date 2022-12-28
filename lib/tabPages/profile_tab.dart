@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:boride_driver/global/global.dart';
@@ -11,9 +12,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutterwave_standard/flutterwave.dart';
+import 'package:flutterwave_standard/models/requests/customer.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../infoHandler/app_info.dart';
 
@@ -64,10 +68,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       vColor = prefs.getString('v_color') ?? onlineDriverData.car_color!;
       vModel = prefs.getString('v_model') ?? onlineDriverData.car_model!;
       ratings = onlineDriverData.ratings.toString();
-
     });
-
-
   }
 
   selectFile() async {
@@ -121,11 +122,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   Container(
                     margin: const EdgeInsets.only(bottom: 15, top: 15),
                     child: ClipOval(
-                      child:Image.network(
-                        fAuth.currentUser!.photoURL!,
-                        scale: 18,
-                      )
-                    ),
+                        child: Image.network(
+                      fAuth.currentUser!.photoURL!,
+                      scale: 18,
+                    )),
                   ),
                   Column(children: [
                     Text(onlineDriverData.name!,
@@ -394,6 +394,46 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         ),
                         GestureDetector(
                           onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) => const Center(
+                                        child: CircularProgressIndicator(
+                                      color: Colors.indigo,
+                                    )));
+                            Timer(const Duration(seconds: 1), () async {
+                              checkDebt();
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.warning_amber_rounded),
+                                SizedBox(width: 40),
+                                Expanded(
+                                  child: Text(
+                                    'Settle OD',
+                                    style: TextStyle(
+                                      fontFamily: "Brand-Regular",
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios_outlined)
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: () {
                             Share.share(
                                 'https://boride.page.link/driver/${"0Np0X5"}');
                           },
@@ -470,6 +510,85 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
           ),
         ]),
       ),
+    );
+  }
+
+  checkDebt() {
+    String debtAmount;
+
+    FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("debt")
+        .once()
+        .then((value) {
+      if (value.snapshot.value != null) {
+        debtAmount = value.snapshot.value.toString();
+        Navigator.pop(context);
+        _handlePaymentInitialization(debtAmount);
+      } else {
+        Navigator.pop(context);
+        Fluttertoast.showToast(msg: "You do not have an outstanding pay");
+      }
+    });
+  }
+
+  bool isTestMode = true;
+
+  _handlePaymentInitialization(String debtAmount) async {
+    final Customer customer = Customer(
+        name: onlineDriverData.name!,
+        phoneNumber: onlineDriverData.phone!,
+        email: onlineDriverData.email!);
+
+    final Flutterwave flutterWave = Flutterwave(
+        context: context,
+        publicKey: getPublicKey(),
+        currency: "NGN",
+        redirectUrl: 'https://facebook.com',
+        txRef: "${const Uuid().v1()}-Txd",
+        amount: debtAmount.toString(),
+        customer: customer,
+        paymentOptions: "card, bank transfer",
+        customization: Customization(title: "Test Payment"),
+        isTestMode: isTestMode);
+    // ignore: unused_local_variable
+    final ChargeResponse response = await flutterWave.charge();
+    if (response != null) {
+      if (response.status == "successful") {
+        Fluttertoast.showToast(msg: response.status!);
+        FirebaseDatabase.instance
+            .ref()
+            .child("drivers")
+            .child(fAuth.currentUser!.uid)
+            .child("debt")
+            .remove();
+      } else {
+        Fluttertoast.showToast(msg: response.status!);
+      }
+    }
+  }
+
+  String getPublicKey() {
+    if (isTestMode) return "FLWPUBK_TEST-05883fda3bc8c92020311be726ca4d7a-X";
+    return "FLWPUBK-45587fdb1c84335354ab0fa388b803d5-X";
+  }
+
+  Future<void> showLoading(String message) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            margin: const EdgeInsets.fromLTRB(30, 20, 30, 20),
+            width: double.infinity,
+            height: 50,
+            child: Text(message),
+          ),
+        );
+      },
     );
   }
 }

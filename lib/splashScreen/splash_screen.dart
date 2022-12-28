@@ -5,7 +5,9 @@ import 'package:boride_driver/authentication/email_verify.dart';
 import 'package:boride_driver/authentication/login_screen.dart';
 import 'package:boride_driver/global/global.dart';
 import 'package:boride_driver/mainScreens/main_screen.dart';
+import 'package:boride_driver/splashScreen/intro_screen.dart';
 import 'package:boride_driver/splashScreen/retry_screen.dart';
+import 'package:boride_driver/widgets/waiting_doc_verify.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -28,8 +30,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
         await checkRegistrationStatus();
         Once.runOnce("first_time", callback: checkInternetAccess);
         if (hasCompletedRegistration) {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (c) => const MainScreen()));
+          checkIfDocumentsIsVerified();
         } else {
           if (fAuth.currentUser!.emailVerified) {
             Navigator.pushReplacement(
@@ -49,6 +50,31 @@ class _MySplashScreenState extends State<MySplashScreen> {
       } else {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (c) => const LoginScreen()));
+
+      }
+    });
+  }
+
+  visitIntroPage() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (c) => const IntroScreen()));
+  }
+
+  checkIfDocumentsIsVerified() {
+    String status;
+    FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(fAuth.currentUser!.uid)
+        .child("isDocVerified")
+        .once()
+        .then((value) {
+      if (value.snapshot.value == "true") {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (c) => const MainScreen()));
+      } else {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (c) => const WaitingDocumentVerify()));
       }
     });
   }

@@ -20,6 +20,10 @@ class BrandColors {
   static const Color colorTextSemiLight = Color(0xFF737373);
   static const Color colorTextDark = Color(0xFF292828);
   static const Color colorTextT = Color(0xFF959494);
+  static const Color colorTextI = Color(0xFF6E6C6C);
+  static const Color colorTextP = Color(0xFF9B9898);
+
+
 
   static const Color colorGreen = Color(0xFF40cf89);
   static const Color colorLightGray = Color(0xFFe2e2e2);

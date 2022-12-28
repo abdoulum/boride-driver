@@ -152,7 +152,7 @@ class AssistantMethods {
           .then((snaps) {
         var eachTripHistory = TripsHistoryModel.fromSnapshot(snaps.snapshot);
 
-        if ((snaps.snapshot.value as Map)["status"] == "ended") {
+        if ((snaps.snapshot.value as Map)["status"] == "Completed") {
           //update-add each history to OverAllTrips History Data List
           Provider.of<AppInfo>(context, listen: false)
               .updateOverAllTripsHistoryInformation(eachTripHistory);
@@ -237,8 +237,8 @@ class AssistantMethods {
 
     if (driverVehicleType == "boride-go") {
       if (totalFare <= 400) {
-        totalFare = 500;
-        return (((totalFare - 1) ~/ 100) * 100).toInt();
+        totalFare = 400;
+        return (((totalFare - 0) ~/ 100) * 100).toInt();
       }
     } else if (driverVehicleType == "boride-corporate") {
       totalFare = totalFare + 300;
@@ -263,6 +263,9 @@ class AssistantMethods {
     if (driverVehicleType == "boride-go") {
       double dTotalFare;
       dTotalFare = totalFare - ((discountP / 100) * totalFare);
+      if (dTotalFare < 400) {
+        dTotalFare = 400;
+      }
       return (((dTotalFare - 0) ~/ 100) * 100).toInt();
     } else if (driverVehicleType == "boride-corporate") {
       var nTotalFare = totalFare + 300;
